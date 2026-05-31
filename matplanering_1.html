@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matplanering — 5 veckor</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F7F4EF;
+    --ink: #1C1917;
+    --muted: #6B6560;
+    --green: #2D6A4F;
+    --green-light: #D8F3DC;
+    --blue: #1D5A8A;
+    --blue-light: #DBE9F4;
+    --amber: #92400E;
+    --amber-light: #FEF3C7;
+    --purple: #4C3A8B;
+    --purple-light: #EDE9FE;
+    --red: #9B2335;
+    --red-light: #FDE8EB;
+    --border: rgba(28,25,23,0.1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; }
+
+  header {
+    background: var(--ink); color: var(--cream);
+    padding: 2.5rem 2rem 2rem; position: relative; overflow: hidden;
+  }
+  header::before { content:''; position:absolute; top:-40px; right:-40px; width:220px; height:220px; border-radius:50%; background:rgba(181,84,26,0.15); }
+  header::after  { content:''; position:absolute; bottom:-60px; left:30%; width:160px; height:160px; border-radius:50%; background:rgba(45,106,79,0.12); }
+  .header-inner { max-width: 800px; margin: 0 auto; position: relative; z-index: 1; }
+  header h1 { font-family:'Playfair Display',serif; font-size:clamp(2rem,5vw,3rem); font-weight:600; letter-spacing:-0.02em; line-height:1.15; margin-bottom:0.5rem; }
+  header p { color:rgba(247,244,239,0.6); font-size:0.9rem; letter-spacing:0.04em; text-transform:uppercase; }
+  .legend { display:flex; flex-wrap:wrap; gap:8px; margin-top:1.25rem; }
+  .legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:rgba(247,244,239,0.7); letter-spacing:0.03em; }
+  .legend-dot { width:8px; height:8px; border-radius:2px; }
+
+  main { max-width: 800px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+  .week-nav {
+    display:flex; gap:6px; flex-wrap:wrap; margin-bottom:2rem;
+    position:sticky; top:0; z-index:10; background:var(--cream);
+    padding:0.75rem 0; border-bottom:1px solid var(--border);
+  }
+  .week-btn {
+    padding:6px 16px; border-radius:99px; border:1px solid var(--border);
+    background:transparent; cursor:pointer; font-family:'DM Sans',sans-serif;
+    font-size:13px; font-weight:400; color:var(--muted); transition:all 0.18s;
+  }
+  .week-btn:hover { border-color:var(--ink); color:var(--ink); }
+  .week-btn.active { background:var(--ink); color:var(--cream); border-color:var(--ink); }
+
+  .week-panel { display:none; animation:fadeIn 0.2s ease; }
+  .week-panel.active { display:block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+  .section-heading {
+    font-size:10px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--muted); margin:0 0 0.75rem;
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-heading::after { content:''; flex:1; height:1px; background:var(--border); }
+  .section-block { margin-bottom: 2rem; }
+  .meal-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; }
+
+  .meal-card {
+    background:white; border:1px solid var(--border); border-radius:12px;
+    padding:1.1rem 1.25rem; cursor:pointer;
+    transition:box-shadow 0.15s, transform 0.15s;
+  }
+  .meal-card:hover { box-shadow:0 6px 24px rgba(28,25,23,0.1); transform:translateY(-1px); }
+  .meal-card.big { border-top:3px solid var(--green); }
+  .meal-card.ny-kort { border-top:3px solid var(--purple); }
+
+  .card-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:6px; }
+  .card-meta { font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .card-name { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:400; line-height:1.35; margin-bottom:6px; }
+  .card-desc { font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:10px; }
+  .card-icon { font-size:22px; line-height:1; }
+  .card-hint { font-size:11px; color:var(--muted); margin-top:8px; display:flex; align-items:center; gap:4px; opacity:0.7; }
+
+  .tags { display:flex; flex-wrap:wrap; gap:4px; }
+  .tag { font-size:10px; padding:2px 8px; border-radius:99px; letter-spacing:0.03em; font-weight:500; }
+  .tag-grön { background:var(--green-light); color:var(--green); }
+  .tag-fisk { background:var(--blue-light); color:var(--blue); }
+  .tag-kött { background:var(--red-light); color:var(--red); }
+  .tag-matlåda { background:#D1FAE5; color:#065F46; }
+  .tag-potatis { background:var(--amber-light); color:var(--amber); }
+  .tag-baljväxter { background:var(--purple-light); color:var(--purple); }
+  .tag-nytt { background:var(--purple-light); color:var(--purple); font-style:italic; }
+
+  .badge-ny { font-size:9px; background:var(--purple-light); color:var(--purple); border-radius:99px; padding:2px 8px; font-weight:500; letter-spacing:0.04em; white-space:nowrap; }
+  .badge-mat { font-size:9px; background:var(--green-light); color:var(--green); border-radius:99px; padding:2px 8px; font-weight:500; letter-spacing:0.04em; white-space:nowrap; }
+
+  /* Modal */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; z-index:100;
+    background:rgba(28,25,23,0.55); backdrop-filter:blur(3px);
+    align-items:center; justify-content:center; padding:1rem;
+  }
+  .modal-overlay.open { display:flex; animation:fadeOverlay 0.2s ease; }
+  @keyframes fadeOverlay { from { opacity:0; } to { opacity:1; } }
+
+  .modal {
+    background:var(--cream); border-radius:16px; width:100%; max-width:560px;
+    max-height:88vh; overflow-y:auto; position:relative;
+    animation:slideUp 0.22s ease;
+  }
+  @keyframes slideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+  .modal-header {
+    background:var(--ink); color:var(--cream);
+    padding:1.5rem 1.5rem 1.25rem; border-radius:16px 16px 0 0;
+    position:relative;
+  }
+  .modal-header .m-icon { font-size:2rem; margin-bottom:0.5rem; display:block; }
+  .modal-header h2 { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:400; line-height:1.3; }
+  .modal-header p { font-size:12px; color:rgba(247,244,239,0.55); margin-top:4px; letter-spacing:0.04em; text-transform:uppercase; }
+  .modal-close {
+    position:absolute; top:1rem; right:1rem;
+    background:rgba(255,255,255,0.1); border:none; color:var(--cream);
+    width:30px; height:30px; border-radius:50%; cursor:pointer;
+    font-size:16px; display:flex; align-items:center; justify-content:center;
+    transition:background 0.15s;
+  }
+  .modal-close:hover { background:rgba(255,255,255,0.2); }
+
+  .modal-body { padding:1.5rem; }
+
+  .recipe-section { margin-bottom:1.5rem; }
+  .recipe-section h3 {
+    font-size:10px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--muted); margin-bottom:0.75rem;
+    display:flex; align-items:center; gap:8px;
+  }
+  .recipe-section h3::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  .ingredients { list-style:none; display:flex; flex-direction:column; gap:6px; }
+  .ingredients li {
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:14px; padding-bottom:6px; border-bottom:1px solid var(--border);
+  }
+  .ingredients li:last-child { border-bottom:none; }
+  .ing-name { color:var(--ink); }
+  .ing-qty { color:var(--muted); font-size:13px; white-space:nowrap; margin-left:1rem; }
+
+  .steps { list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .steps li { display:flex; gap:10px; font-size:14px; line-height:1.6; }
+  .step-num {
+    min-width:22px; height:22px; border-radius:50%;
+    background:var(--ink); color:var(--cream);
+    font-size:11px; font-weight:500;
+    display:flex; align-items:center; justify-content:center;
+    margin-top:2px; flex-shrink:0;
+  }
+
+  .servings-row {
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:1.25rem; font-size:13px; color:var(--muted);
+  }
+  .servings-row button {
+    width:28px; height:28px; border-radius:50%; border:1px solid var(--border);
+    background:white; cursor:pointer; font-size:16px;
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.15s; color:var(--ink);
+  }
+  .servings-row button:hover { background:var(--ink); color:var(--cream); border-color:var(--ink); }
+  .servings-count { font-size:15px; font-weight:500; color:var(--ink); min-width:20px; text-align:center; }
+
+  footer { text-align:center; padding:2rem; font-size:12px; color:var(--muted); border-top:1px solid var(--border); letter-spacing:0.04em; }
+
+  @media (max-width:500px) {
+    .meal-grid { grid-template-columns:1fr; }
+    header { padding:2rem 1.25rem 1.5rem; }
+    .modal-body { padding:1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <p>Gemensam matplanering</p>
+    <h1>Veckans mat<br>— 5 veckor</h1>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#2D6A4F"></span> Stor sats / matlådor</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#4C3A8B"></span> Nytt i planen</div>
+      <div class="legend-item"><span class="legend-dot" style="background:rgba(247,244,239,0.3)"></span> Klicka på rätt för recept</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <nav class="week-nav" id="nav"></nav>
+  <div id="content"></div>
+</main>
+
+<div class="modal-overlay" id="overlay" role="dialog" aria-modal="true">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <button class="modal-close" id="modal-close" aria-label="Stäng">✕</button>
+      <span class="m-icon" id="m-icon"></span>
+      <h2 id="m-title"></h2>
+      <p id="m-meta"></p>
+    </div>
+    <div class="modal-body">
+      <div class="servings-row">
+        <button id="srv-down">−</button>
+        <span class="servings-count" id="srv-count">4</span>
+        <span>portioner</span>
+        <button id="srv-up">+</button>
+      </div>
+      <div class="recipe-section">
+        <h3>Ingredienser</h3>
+        <ul class="ingredients" id="m-ingredients"></ul>
+      </div>
+      <div class="recipe-section">
+        <h3>Tillagning</h3>
+        <ol class="steps" id="m-steps"></ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>Gjord med ❤ för er båda</footer>
+
+<script>
+const recipes = {
+  "Röd linschili med kokosmjölk": {
+    servings: 6,
+    ingredients: [
+      ["Röda linser", "400 g"],
+      ["Kokosmjölk", "400 ml"],
+      ["Krossade tomater", "400 g"],
+      ["Gul lök", "2 st"],
+      ["Vitlök", "4 klyftor"],
+      ["Färsk ingefära", "2 msk riven"],
+      ["Spiskummin, mald", "2 tsk"],
+      ["Koriander, mald", "1 tsk"],
+      ["Garam masala", "1 tsk"],
+      ["Chiliflakes", "½ tsk"],
+      ["Grönsaksbuljongtärning", "1 st"],
+      ["Rapsolja", "2 msk"],
+      ["Salt & peppar", "efter smak"],
+      ["Färsk koriander", "till servering"],
+      ["Ris (basmati)", "till servering"],
+    ],
+    steps: [
+      "Hacka lök och vitlök fint. Riv ingefäran.",
+      "Fräs lök i olja på medelvärme ca 5 min tills mjuk. Tillsätt vitlök och ingefära, fräs 1 min.",
+      "Rör ner spiskummin, koriander, garam masala och chiliflakes. Fräs 30 sekunder.",
+      "Skölj linserna. Tillsätt linser, krossade tomater och kokosmjölk. Rör om.",
+      "Lös buljong i 3 dl vatten och häll i grytan. Koka upp.",
+      "Sänk värmen, lägg på lock och sjud 25–30 min tills linserna är mjuka. Rör om ibland.",
+      "Smaka av med salt, peppar och ev. mer chili. Servera med ris och färsk koriander.",
+    ]
+  },
+  "Ugnsbakad lax med klyftpotatis och örter": {
+    servings: 4,
+    ingredients: [
+      ["Laxfilé", "600 g"],
+      ["Fast potatis", "800 g"],
+      ["Fetaost", "100 g"],
+      ["Citron", "1 st"],
+      ["Vitlök", "3 klyftor"],
+      ["Färsk rosmarin", "3 kvistar"],
+      ["Olivolja", "3 msk"],
+      ["Grönkål", "100 g"],
+      ["Dijonsenap", "1 msk"],
+      ["Honung", "1 tsk"],
+      ["Salt & peppar", "efter smak"],
+    ],
+    steps: [
+      "Värm ugnen till 200°C. Skär potatisen i klyftor och blanda med olivolja, hackad vitlök, rosmarin, salt och peppar.",
+      "Bred ut potatisen på en plåt och rosta 25 min.",
+      "Vispa ihop citronjuice, senap, honung och 1 msk olivolja till en dressing.",
+      "Lägg laxen på plåten bland potatisen, pensla med dressingen. Smula över fetaost.",
+      "Baka ytterligare 12–15 min tills laxen är genomvarm.",
+      "Massera grönkålen med lite olivolja och citronsaft. Servera allt tillsammans.",
+    ]
+  },
+  "Klassisk lasagne med köttfärssås och bechamel": {
+    servings: 6,
+    ingredients: [
+      ["Nötfärs", "500 g"],
+      ["Krossade tomater", "800 g"],
+      ["Gul lök", "2 st"],
+      ["Vitlök", "3 klyftor"],
+      ["Tomatpuré", "2 msk"],
+      ["Torrt rödvin (eller vatten)", "1 dl"],
+      ["Oregano, torkad", "2 tsk"],
+      ["Lasagneplattor", "12–15 st"],
+      ["Riven ost (gräddost/lagrad)", "150 g"],
+      ["— Bechamel —", ""],
+      ["Smör", "50 g"],
+      ["Vetemjöl", "4 msk"],
+      ["Mjölk", "6 dl"],
+      ["Muskotnöt, riven", "½ tsk"],
+      ["Salt & peppar", "efter smak"],
+    ],
+    steps: [
+      "Hacka lök och vitlök. Fräs i olja tills mjuk, ca 5 min. Tillsätt köttfärs och bryn.",
+      "Rör ner tomatpuré, oregano och rödvin. Koka 1 min. Tillsätt krossade tomater.",
+      "Sjud köttfärssåsen på låg värme 20–25 min. Smaka av med salt och peppar.",
+      "Bechamel: Smält smör i en kastrull. Rör ner mjöl och fräs 1 min. Häll i mjölk lite i taget under konstant vispning.",
+      "Koka bechamelen under omrörning tills tjock, ca 5 min. Krydda med muskotnöt, salt och peppar.",
+      "Värm ugnen till 200°C. Varva köttfärssås, lasagneplattor och bechamel i en form. Avsluta med bechamel och riven ost.",
+      "Grädda 35–40 min tills gyllenbrun. Låt vila 10 min före servering.",
+    ]
+  },
+  "Vegetariska tacos": {
+    servings: 4,
+    ingredients: [
+      ["Svarta bönor (burk)", "2 x 400 g"],
+      ["Majs (burk)", "1 x 200 g"],
+      ["Mjuka tortillas", "8–10 st"],
+      ["Avocado", "2 st"],
+      ["Körsbärstomater", "200 g"],
+      ["Rödlök", "1 st"],
+      ["Jalapeño (inlagd)", "efter smak"],
+      ["Lime", "1 st"],
+      ["Spiskummin", "1 tsk"],
+      ["Paprikapulver, rökt", "1 tsk"],
+      ["Olivolja", "1 msk"],
+      ["Koriander", "½ kruka"],
+      ["Crème fraîche eller yoghurt", "till servering"],
+      ["Salt", "efter smak"],
+    ],
+    steps: [
+      "Skölj och avrina bönor och majs. Fräs med spiskummin och paprikapulver i olivolja 3–4 min. Smaka av med salt.",
+      "Tärna avocado, halvera tomaterna, finhacka rödlök och koriander. Blanda med limejuice.",
+      "Värm tortillorna torrt i stekpanna eller i ugn (200°C, 3 min).",
+      "Lägg upp alla tillbehör och låt var och en bygga sina egna tacos.",
+    ]
+  },
+  "Svarta bönor i chipotle och tomatbas": {
+    servings: 6,
+    ingredients: [
+      ["Svarta bönor (burk)", "3 x 400 g"],
+      ["Krossade tomater", "400 g"],
+      ["Gul lök", "2 st"],
+      ["Vitlök", "4 klyftor"],
+      ["Chipotlepasta eller rökt paprika", "2 msk"],
+      ["Spiskummin", "2 tsk"],
+      ["Oregano", "1 tsk"],
+      ["Grönsaksbuljongtärning", "1 st"],
+      ["Rapsolja", "2 msk"],
+      ["Limejuice", "1 st"],
+      ["Crème fraîche", "till servering"],
+      ["Ris", "till servering"],
+      ["Salt & peppar", "efter smak"],
+    ],
+    steps: [
+      "Hacka lök och vitlök, fräs i olja ca 5 min.",
+      "Tillsätt chipotlepasta, spiskummin och oregano. Fräs 1 min.",
+      "Rör ner krossade tomater och avrinnade bönor. Häll i 2 dl vatten med buljong.",
+      "Sjud 20 min tills såsen tjocknat. Smaka av med limejuice, salt och peppar.",
+      "Servera med ris och en klick crème fraîche.",
+    ]
+  },
+  "Torskrygg med rotmossmos och skirat smör": {
+    servings: 4,
+    ingredients: [
+      ["Torskrygg", "600 g"],
+      ["Rotselleri", "400 g"],
+      ["Fast potatis", "400 g"],
+      ["Smör", "100 g"],
+      ["Mjölk eller grädde", "1 dl"],
+      ["Kapris", "2 msk"],
+      ["Dill", "½ kruka"],
+      ["Citron", "1 st"],
+      ["Salt & vitpeppar", "efter smak"],
+    ],
+    steps: [
+      "Skala och tärna rotselleri och potatis. Koka mjuka i saltat vatten, ca 20 min.",
+      "Häll av vattnet. Mosa med smör (50 g) och mjölk. Smaka av med salt och vitpeppar.",
+      "Salta torskryggen. Stek i smör på medelvärme 3–4 min per sida tills genomvarm.",
+      "Skira resterande smör i en liten kastrull tills gyllengult och nötaktigt, ca 3 min.",
+      "Servera torsken på moset. Toppa med skirat smör, kapris, dill och citronsaft.",
+    ]
+  },
+  "Halloumi med klyftpotatis och grönsalsa": {
+    servings: 4,
+    ingredients: [
+      ["Halloumi", "400 g"],
+      ["Fast potatis", "700 g"],
+      ["Olivolja", "3 msk"],
+      ["— Salsa verde —", ""],
+      ["Persilja", "1 kruka"],
+      ["Basilika", "½ kruka"],
+      ["Kapris", "2 msk"],
+      ["Vitlök", "1 klyfta"],
+      ["Dijonsenap", "1 tsk"],
+      ["Citronsaft", "2 msk"],
+      ["Olivolja", "3 msk"],
+      ["Salt & peppar", "efter smak"],
+    ],
+    steps: [
+      "Skär potatis i klyftor, blanda med olivolja, salt och peppar. Rosta i 200°C ca 30 min.",
+      "Mixa persilja, basilika, kapris, vitlök, senap och citronsaft till en grov salsa. Tillsätt olivolja och smaka av.",
+      "Skär halloumin i skivor, ca 1 cm tjocka. Stek i torr het panna 2 min per sida tills gyllenbrun.",
+      "Servera halloumi och potatis med riklig salsa verde.",
+    ]
+  },
+  "Thai grön curry med tofu och grönsaker": {
+    servings: 4,
+    ingredients: [
+      ["Fast tofu", "400 g"],
+      ["Kokosmjölk", "400 ml"],
+      ["Grön currypasta", "2–3 msk"],
+      ["Zucchini", "1 st"],
+      ["Röd paprika", "1 st"],
+      ["Sockerärtor", "150 g"],
+      ["Babyspenat", "60 g"],
+      ["Fisksås (eller sojasås)", "2 msk"],
+      ["Palmsocker eller farinsocker", "1 tsk"],
+      ["Lime", "1 st"],
+      ["Kokosolja", "1 msk"],
+      ["Thailändsk basilika", "till servering"],
+      ["Ris (jasmin)", "till servering"],
+    ],
+    steps: [
+      "Pressa tofu torr, tärna och stek gyllenbrun i kokosolja ca 5 min. Ta ur pannan.",
+      "Fräs currypastan i samma panna 1 min. Häll i kokosmjölken och koka upp.",
+      "Tillsätt zucchini och paprika, sjud 5 min. Lägg i sockerärtor och tofu.",
+      "Smaka av med fisksås, socker och lime. Rör ner spenaten sist.",
+      "Servera med jasminris och basilika.",
+    ]
+  },
+  "Gul linssoppa med kummin och citron": {
+    servings: 6,
+    ingredients: [
+      ["Gula linser", "400 g"],
+      ["Gul lök", "2 st"],
+      ["Vitlök", "4 klyftor"],
+      ["Morötter", "2 st"],
+      ["Spiskummin", "2 tsk"],
+      ["Gurkmejalspulver (gurkmeja)", "1 tsk"],
+      ["Koriander, mald", "1 tsk"],
+      ["Cayennepeppar", "¼ tsk"],
+      ["Grönsaksbuljongtärning", "2 st"],
+      ["Citron", "1 st"],
+      ["Olivolja", "2 msk"],
+      ["Salt & peppar", "efter smak"],
+      ["Knäckebröd", "till servering"],
+    ],
+    steps: [
+      "Hacka lök, vitlök och morötter. Fräs i olivolja ca 5 min.",
+      "Tillsätt spiskummin, gurkmeja, koriander och cayenne. Fräs 1 min.",
+      "Skölj linserna och tillsätt med 1,5 liter vatten och buljongtärningar. Koka upp.",
+      "Sjud under lock 25 min tills linser och morötter är mjuka.",
+      "Mixa slät med stavmixer. Smaka av med citronjuice, salt och peppar.",
+      "Servera med knäckebröd och en ringla olivolja.",
+    ]
+  },
+  "Köttfärssås med pasta och rotgrönsaker": {
+    servings: 6,
+    ingredients: [
+      ["Nötfärs", "500 g"],
+      ["Krossade tomater", "800 g"],
+      ["Gul lök", "2 st"],
+      ["Morot", "2 st"],
+      ["Selleri", "2 stjälkar"],
+      ["Vitlök", "3 klyftor"],
+      ["Tomatpuré", "2 msk"],
+      ["Rödvin", "1 dl"],
+      ["Oregano & basilika", "1 tsk vardera"],
+      ["Olivolja", "2 msk"],
+      ["Pasta", "till servering"],
+      ["Riven parmesan", "till servering"],
+      ["Salt & peppar", "efter smak"],
+    ],
+    steps: [
+      "Finhacka lök, morot, selleri och vitlök. Fräs mjukt i olivolja ca 8 min.",
+      "Höj värmen, tillsätt köttfärs och bryn väl. Rör ner tomatpuré.",
+      "Häll i rödvin, låt avdunsta 2 min. Tillsätt krossade tomater och örter.",
+      "Sjud på låg värme 30–40 min. Smaka av med salt och peppar.",
+      "Koka pasta enligt förpackning. Servera med riklig sås och riven parmesan.",
+    ]
+  },
+  "Potatissoppa med brynt smör och gräslök": {
+    servings: 4,
+    ingredients: [
+      ["Mjölig potatis", "800 g"],
+      ["Purjolök", "2 st"],
+      ["Smör", "75 g"],
+      ["Grädde", "1 dl"],
+      ["Grönsaksbuljongtärning", "2 st"],
+      ["Vitlök", "2 klyftor"],
+      ["Gräslök", "½ kruka"],
+      ["Salt & vitpeppar", "efter smak"],
+    ],
+    steps: [
+      "Skala och tärna potatis. Skiva purjolök. Fräs purjolök i 25 g smör 3 min.",
+      "Tillsätt potatis, vitlök och 1,2 liter vatten med buljongtärningar. Koka 20 min.",
+      "Mixa slät. Rör ner grädde, smaka av med salt och vitpeppar.",
+      "Bryn resterande smör i en liten kastrull tills gyllengult och nötaktigt.",
+      "Servera soppan med brynt smör ringat ovanpå och klippt gräslök.",
+    ]
+  },
+  "Marockansk kikärtsgryta med morötter": {
+    servings: 6,
+    ingredients: [
+      ["Kikärter (burk)", "2 x 400 g"],
+      ["Morötter", "4 st"],
+      ["Krossade tomater", "400 g"],
+      ["Gul lök", "2 st"],
+      ["Vitlök", "3 klyftor"],
+      ["Torkade aprikoser", "100 g"],
+      ["Spiskummin", "2 tsk"],
+      ["Kanel", "1 tsk"],
+      ["Koriander, mald", "1 tsk"],
+      ["Ingefära, mald", "½ tsk"],
+      ["Harissa eller chili", "1 tsk"],
+      ["Grönsaksbuljongtärning", "1 st"],
+      ["Couscous", "till servering"],
+      ["Färsk koriander", "till servering"],
+    ],
+    steps: [
+      "Skär morötter i bitar, hacka lök och vitlök. Fräs i olja 5 min.",
+      "Tillsätt alla kryddor och harissa, fräs 1 min.",
+      "Häll i tomater, kikärter, tärnade aprikoser och 3 dl vatten med buljong.",
+      "Sjud under lock 30 min tills morötter är mjuka. Smaka av.",
+      "Koka couscous enligt förpackning. Servera grytan med couscous och koriander.",
+    ]
+  },
+  "Senapslax med dillpotatis och spenat": {
+    servings: 4,
+    ingredients: [
+      ["Laxfilé", "600 g"],
+      ["Fast potatis", "700 g"],
+      ["Babyspenat", "100 g"],
+      ["Dijonsenap", "3 msk"],
+      ["Honung", "1 msk"],
+      ["Citron", "1 st"],
+      ["Dill", "1 kruka"],
+      ["Smör", "20 g"],
+      ["Olivolja", "2 msk"],
+      ["Salt & peppar", "efter smak"],
+    ],
+    steps: [
+      "Koka potatis i saltat vatten tills mjuk. Häll av och vänd med smör och hackad dill.",
+      "Blanda senap, honung, citronskal och lite citronsaft till marinad.",
+      "Lägg laxen i ugnsform, bred senapsmarinaden ovanpå. Baka i 200°C ca 12–14 min.",
+      "Fräs spenaten snabbt i lite olivolja tills precis ihopfalld.",
+      "Servera laxen med dillpotatis och spenat.",
+    ]
+  },
+  "Klyftpotatis med tzatziki och grönsaker": {
+    servings: 4,
+    ingredients: [
+      ["Fast potatis", "800 g"],
+      ["Olivolja", "3 msk"],
+      ["Paprikapulver", "1 tsk"],
+      ["— Tzatziki —", ""],
+      ["Turkisk yoghurt (10%)", "300 g"],
+      ["Gurka", "½ st"],
+      ["Vitlök", "1–2 klyftor"],
+      ["Olivolja", "1 msk"],
+      ["Dill eller mynta", "1 msk hackad"],
+      ["Citronsaft", "1 msk"],
+      ["— Tabbouleh —", ""],
+      ["Bulgur eller couscous", "150 g"],
+      ["Tomater", "2 st"],
+      ["Persilja", "1 kruka"],
+      ["Citron", "1 st"],
+      ["Salt & peppar", "efter smak"],
+    ],
+    steps: [
+      "Klyfta potatisen, blanda med olivolja, paprika, salt och peppar. Rosta i 220°C ca 30 min.",
+      "Riv gurkan grovt, salta och krama ur vätska. Blanda med yoghurt, pressad vitlök, dill, citronsaft och olja. Kyl.",
+      "Koka bulgur enligt förpackning, svalna. Blanda med tärnade tomater, persilja och citronjuice.",
+      "Servera klyftpotatis med tzatziki och tabbouleh.",
+    ]
+  },
+  "Pytt i panna": {
+    servings: 4,
+    ingredients: [
+      ["Kokt potatis (gärna från dagen innan)", "600 g"],
+      ["Kokt eller stekt kött (nöt/fläsk)", "300 g"],
+      ["Gul lök", "2 st"],
+      ["Rödbeta (inlagd)", "1 burk"],
+      ["Smör", "50 g"],
+      ["Ägg", "4 st"],
+      ["Salt & peppar", "efter smak"],
+      ["Persilja", "till servering"],
+    ],
+    steps: [
+      "Tärna potatis och kött i lika stora bitar, ca 1 cm. Hacka löken.",
+      "Stek lök i smör tills mjuk. Tillsätt potatis och stek gyllenbrun utan att röra för mycket, ca 8 min.",
+      "Tillsätt köttet och fräs ytterligare 5 min. Smaka av med salt och peppar.",
+      "Stek äggen separat, gärna med rinnig gula.",
+      "Servera pytten toppat med ett ägg och rödbeta på sidan. Strö över persilja.",
+    ]
+  },
+  "Röda kidney-bönor i tomatchili": {
+    servings: 6,
+    ingredients: [
+      ["Kidney-bönor (burk)", "3 x 400 g"],
+      ["Krossade tomater", "800 g"],
+      ["Gul lök", "2 st"],
+      ["Röd paprika", "2 st"],
+      ["Vitlök", "4 klyftor"],
+      ["Chipotle/ancho-chili eller chiliflingor", "2 tsk"],
+      ["Spiskummin", "2 tsk"],
+      ["Paprikapulver, rökt", "1 tsk"],
+      ["Grönsaksbuljongtärning", "1 st"],
+      ["Avocado", "2 st"],
+      ["Limejuice", "1 st"],
+      ["Ris", "till servering"],
+      ["Salt & peppar", "efter smak"],
+    ],
+    steps: [
+      "Hacka lök, paprika och vitlök. Fräs i olja ca 6 min.",
+      "Tillsätt chili, spiskummin och paprikapulver. Fräs 1 min.",
+      "Häll i tomater, bönor och buljong löst i 1 dl vatten. Koka upp.",
+      "Sjud 25 min tills såsen tjocknat. Smaka av med salt, peppar och limejuice.",
+      "Servera med ris och skivad avocado.",
+    ]
+  },
+  "Fiskgratäng med klyftpotatis och dillsås": {
+    servings: 4,
+    ingredients: [
+      ["Vit fisk (torsk/sej/pangasius)", "600 g"],
+      ["Fast potatis", "700 g"],
+      ["Riven ost", "100 g"],
+      ["Ströbröd", "3 msk"],
+      ["Olivolja", "2 msk"],
+      ["— Dillsås —", ""],
+      ["Smör", "25 g"],
+      ["Vetemjöl", "2 msk"],
+      ["Mjölk", "3 dl"],
+      ["Dill", "1 kruka"],
+      ["Citron", "½ st"],
+      ["Salt & vitpeppar", "efter smak"],
+    ],
+    steps: [
+      "Klyfta potatisen, rosta med olivolja, salt och peppar i 200°C ca 25 min.",
+      "Lägg fisken i ugnsform, salta och peppra. Blanda ost med ströbröd och strö över.",
+      "Grädda fisken i 200°C ca 15 min tills ostskorpan är gyllenbrun.",
+      "Dillsås: smält smör, rör ner mjöl. Vispa in mjölk lite i taget. Koka tjock. Rör ner hackad dill och citronsaft.",
+      "Servera gratängen med klyftpotatis och dillsåsen.",
+    ]
+  },
+  "Dal makhani (smörlinser)": {
+    servings: 6,
+    ingredients: [
+      ["Svarta linser (urad dal)", "300 g"],
+      ["Kidney-bönor (burk)", "1 x 400 g"],
+      ["Smör", "75 g"],
+      ["Gul lök", "2 st"],
+      ["Vitlök", "4 klyftor"],
+      ["Färsk ingefära", "2 msk riven"],
+      ["Krossade tomater", "400 g"],
+      ["Grädde", "1 dl"],
+      ["Garam masala", "1 tsk"],
+      ["Spiskummin", "1 tsk"],
+      ["Koriander, mald", "1 tsk"],
+      ["Chilipulver", "½ tsk"],
+      ["Salt", "efter smak"],
+      ["Ris", "till servering"],
+    ],
+    steps: [
+      "Blötlägg linserna minst 8 timmar (eller över natten). Koka i nytt vatten 1 timme tills mjuka.",
+      "Fräs lök i smör ca 8 min tills gyllenbrun. Tillsätt vitlök och ingefära, fräs 2 min.",
+      "Rör ner alla kryddor, fräs 1 min. Tillsätt tomater och sjud 10 min.",
+      "Häll i kokta linser, kidney-bönor och ev. lite vatten. Sjud 20–30 min, rör om ibland.",
+      "Rör ner grädde och smör. Smaka av med salt. Servera med ris.",
+    ]
+  },
+  "Grönsakspaj med fetaost och potatisbotten": {
+    servings: 4,
+    ingredients: [
+      ["Mjölig potatis", "600 g"],
+      ["Smör", "40 g"],
+      ["Ägg", "3 st"],
+      ["Fetaost", "150 g"],
+      ["Babyspenat", "80 g"],
+      ["Soltorkade tomater (oljelagda)", "80 g"],
+      ["Grädde", "1,5 dl"],
+      ["Riven ost", "50 g"],
+      ["Vitlök", "1 klyfta"],
+      ["Salt, peppar & oregano", "efter smak"],
+    ],
+    steps: [
+      "Koka och mosa potatisen med smör och 1 ägg. Salta.",
+      "Tryck ut moset i en smord pajform som botten och kanter. Förgädda i 200°C i 10 min.",
+      "Blanda fetaost, spenat, tärnade soltorkade tomater och pressad vitlök.",
+      "Vispa grädde med 2 ägg, salt, peppar och oregano. Blanda med ostosten.",
+      "Häll fyllningen i pajskalet. Strö riven ost ovanpå.",
+      "Baka i 200°C ca 25 min tills pajen stelnat och fått lite färg.",
+    ]
+  },
+};
+
+const weeks = [
+  {
+    label: "Vecka 1",
+    big: [
+      { n:"Röd linschili med kokosmjölk", d:"Indisk-inspirerad linschili med tomat, ingefära, spiskummin och koriander. Serveras med ris.", t:["baljväxter","matlåda","grön"], i:"🍲", ny:false },
+      { n:"Ugnsbakad lax med klyftpotatis och örter", d:"Lax med citrondressing, klyftpotatis med rosmarin och fetaost, grönkålssallad.", t:["fisk","potatis","matlåda"], i:"🐟", ny:false }
+    ],
+    small: [
+      { n:"Klassisk lasagne med köttfärssås och bechamel", d:"Lasagne med mustigt köttfärs i tomatsås, krämig bechamelsås och gratinerad osttopping.", t:["kött","nytt"], i:"🫕", ny:true },
+      { n:"Vegetariska tacos", d:"Tacos med svarta bönor, majs, avocado, salsa och jalapeño. Serveras med mjuka tortillas.", t:["baljväxter","grön","nytt"], i:"🌮", ny:true }
+    ]
+  },
+  {
+    label: "Vecka 2",
+    big: [
+      { n:"Svarta bönor i chipotle och tomatbas", d:"Mexikansk-inspirerad böngryta med rökt smak. Serveras med ris och crème fraîche.", t:["baljväxter","matlåda","grön"], i:"🌶️", ny:false },
+      { n:"Torskrygg med rotmossmos och skirat smör", d:"Husmanskost med mosad rotselleri och potatis, kapris och dill.", t:["fisk","potatis","matlåda"], i:"🐟", ny:false }
+    ],
+    small: [
+      { n:"Halloumi med klyftpotatis och grönsalsa", d:"Stekt halloumi med ugnsrostad potatis och fräsch salsa verde.", t:["potatis","grön"], i:"🧀", ny:false },
+      { n:"Thai grön curry med tofu och grönsaker", d:"Kokosmjölksbaserad curry med zucchini, paprika och sockerärtor.", t:["grön","baljväxter"], i:"🍜", ny:false }
+    ]
+  },
+  {
+    label: "Vecka 3",
+    big: [
+      { n:"Gul linssoppa med kummin och citron", d:"Nordafrikansk-inspirerad soppa med massor av kryddor. Serveras med knäckebröd.", t:["baljväxter","matlåda","grön"], i:"🥣", ny:false },
+      { n:"Köttfärssås med pasta och rotgrönsaker", d:"Bolognese med morötter, selleri och tomat. Serveras med pasta och riven ost.", t:["kött","matlåda"], i:"🍝", ny:false }
+    ],
+    small: [
+      { n:"Potatissoppa med brynt smör och gräslök", d:"Krämig klassiker med bakad potatis, purjolök och grädde.", t:["potatis","grön"], i:"🥣", ny:false },
+      { n:"Vegetariska tacos", d:"Tacos med svarta bönor, majs, avocado, salsa och jalapeño. Serveras med mjuka tortillas.", t:["baljväxter","grön","nytt"], i:"🌮", ny:true }
+    ]
+  },
+  {
+    label: "Vecka 4",
+    big: [
+      { n:"Marockansk kikärtsgryta med morötter", d:"Tagine-inspirerad gryta med kanel, spiskummin och torkad frukt. Serveras med couscous.", t:["baljväxter","matlåda","grön"], i:"🫕", ny:false },
+      { n:"Senapslax med dillpotatis och spenat", d:"Ugnslagad lax med senapsmarinad, kokt dillpotatis och spenatsallad med citron.", t:["fisk","potatis","matlåda"], i:"🐟", ny:false }
+    ],
+    small: [
+      { n:"Klyftpotatis med tzatziki och grönsaker", d:"Ugnsrostad klyftpotatis med hemgjord tzatziki, tabbouleh och olivröra.", t:["potatis","grön"], i:"🥔", ny:false },
+      { n:"Pytt i panna", d:"Klassisk husmanskost med potatis, rotsaker och ägg. Serveras med inlagd rödbeta.", t:["kött","potatis"], i:"🍳", ny:false }
+    ]
+  },
+  {
+    label: "Vecka 5",
+    big: [
+      { n:"Röda kidney-bönor i tomatchili", d:"Kryddig bönchili med ancho, paprika och lök. Serveras med ris och avocado.", t:["baljväxter","matlåda","grön"], i:"🌶️", ny:false },
+      { n:"Fiskgratäng med klyftpotatis och dillsås", d:"Ugnslagad vit fisk med ostskorpa, klyftpotatis och krämig dillsås.", t:["fisk","potatis","matlåda"], i:"🐟", ny:false }
+    ],
+    small: [
+      { n:"Dal makhani (smörlinser)", d:"Krämiga svarta linser från Punjab med lång koktid och smör. Serveras med ris.", t:["baljväxter","grön"], i:"🍲", ny:false },
+      { n:"Grönsakspaj med fetaost och potatisbotten", d:"Paj med potatisbotten fylld med fetaost, spenat och soltorkad tomat.", t:["potatis","grön"], i:"🥧", ny:false }
+    ]
+  }
+];
+
+const tagClass = { grön:"tag-grön", fisk:"tag-fisk", kött:"tag-kött", matlåda:"tag-matlåda", potatis:"tag-potatis", baljväxter:"tag-baljväxter", nytt:"tag-nytt" };
+
+function card(m, big) {
+  const badge = big ? `<span class="badge-mat">matlådor</span>` : m.ny ? `<span class="badge-ny">nytt</span>` : '';
+  return `<div class="meal-card ${big ? 'big' : m.ny ? 'ny-kort' : ''}" onclick="openModal('${m.n.replace(/'/g,"\\'")}','${m.i}','${big?'Stor sats':'Kvällsrätt'}')">
+    <div class="card-top">
+      <div>
+        <div class="card-meta">${big ? 'Stor sats' : 'Kvällsrätt'}</div>
+        <div class="card-name">${m.n}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="card-icon">${m.i}</span>
+        ${badge}
+      </div>
+    </div>
+    <p class="card-desc">${m.d}</p>
+    <div class="tags">${m.t.map(t => `<span class="tag ${tagClass[t]||''}">${t}</span>`).join('')}</div>
+    <p class="card-hint">↗ Visa recept & ingredienser</p>
+  </div>`;
+}
+
+const nav = document.getElementById('nav');
+const content = document.getElementById('content');
+
+weeks.forEach((w, wi) => {
+  const btn = document.createElement('button');
+  btn.className = 'week-btn' + (wi === 0 ? ' active' : '');
+  btn.textContent = w.label;
+  btn.onclick = () => {
+    document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.week-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('wp' + wi).classList.add('active');
+  };
+  nav.appendChild(btn);
+
+  const panel = document.createElement('div');
+  panel.className = 'week-panel' + (wi === 0 ? ' active' : '');
+  panel.id = 'wp' + wi;
+  panel.innerHTML = `
+    <div class="section-block">
+      <p class="section-heading">Stora portioner — görs som matlådor</p>
+      <div class="meal-grid">${w.big.map(m => card(m, true)).join('')}</div>
+    </div>
+    <div class="section-block">
+      <p class="section-heading">Kvällsrätter</p>
+      <div class="meal-grid">${w.small.map(m => card(m, false)).join('')}</div>
+    </div>`;
+  content.appendChild(panel);
+});
+
+// Modal logic
+let baseServings = 4;
+let currentServings = 4;
+let currentRecipe = null;
+
+function openModal(name, icon, meta) {
+  const r = recipes[name];
+  if (!r) return;
+  currentRecipe = r;
+  baseServings = r.servings;
+  currentServings = r.servings;
+  document.getElementById('m-icon').textContent = icon;
+  document.getElementById('m-title').textContent = name;
+  document.getElementById('m-meta').textContent = meta;
+  document.getElementById('srv-count').textContent = currentServings;
+  renderIngredients();
+  renderSteps(r.steps);
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderIngredients() {
+  const ul = document.getElementById('m-ingredients');
+  ul.innerHTML = currentRecipe.ingredients.map(([name, qty]) => {
+    if (qty === '') return `<li style="border-bottom:none;margin-top:8px"><span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)">${name}</span></li>`;
+    const scaled = scaleQty(qty, baseServings, currentServings);
+    return `<li><span class="ing-name">${name}</span><span class="ing-qty">${scaled}</span></li>`;
+  }).join('');
+}
+
+function scaleQty(qty, base, target) {
+  if (base === target) return qty;
+  const factor = target / base;
+  return qty.replace(/(\d+[,.]?\d*)/g, (m) => {
+    const n = parseFloat(m.replace(',','.')) * factor;
+    const r = Math.round(n * 4) / 4;
+    return r === Math.floor(r) ? r.toString() : r.toFixed(1).replace('.',',');
+  });
+}
+
+function renderSteps(steps) {
+  const ol = document.getElementById('m-steps');
+  ol.innerHTML = steps.map((s, i) => `<li><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('');
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modal-close').onclick = closeModal;
+document.getElementById('overlay').onclick = (e) => { if (e.target === document.getElementById('overlay')) closeModal(); };
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+document.getElementById('srv-up').onclick = () => {
+  currentServings++;
+  document.getElementById('srv-count').textContent = currentServings;
+  renderIngredients();
+};
+document.getElementById('srv-down').onclick = () => {
+  if (currentServings > 1) { currentServings--; document.getElementById('srv-count').textContent = currentServings; renderIngredients(); }
+};
+</script>
+</body>
+</html>
