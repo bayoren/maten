@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matplanering</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F7F4EF;--ink:#1C1917;--muted:#6B6560;--green:#2D6A4F;--green-light:#D8F3DC;--blue:#1D5A8A;--blue-light:#DBE9F4;--amber:#92400E;--amber-light:#FEF3C7;--purple:#4C3A8B;--purple-light:#EDE9FE;--red:#9B2335;--red-light:#FDE8EB;--border:rgba(28,25,23,0.1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--cream);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh}
+
+header{background:var(--ink);color:var(--cream);padding:1.75rem 2rem 1.25rem;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(181,84,26,0.15)}
+header::after{content:'';position:absolute;bottom:-50px;left:30%;width:150px;height:150px;border-radius:50%;background:rgba(45,106,79,0.12)}
+.header-inner{max-width:900px;margin:0 auto;position:relative;z-index:1}
+header h1{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,4vw,2.2rem);font-weight:600;letter-spacing:-0.02em;line-height:1.2;margin-bottom:0.2rem}
+.header-sub{color:rgba(247,244,239,0.5);font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase}
+
+/* TOP TABS */
+.top-tabs{background:var(--ink);border-bottom:1px solid rgba(255,255,255,0.1);position:sticky;top:0;z-index:30}
+.top-tabs-inner{max-width:900px;margin:0 auto;display:flex}
+.top-tab{padding:0.6rem 1.25rem;font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(247,244,239,0.5);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;position:relative}
+.top-tab:hover{color:rgba(247,244,239,0.85)}
+.top-tab.active{color:var(--cream);border-bottom-color:var(--cream)}
+.top-tab .badge{background:#B5541A;color:white;font-size:9px;border-radius:99px;padding:1px 6px;margin-left:5px;font-weight:500}
+
+/* WEEK NAV */
+.week-nav{background:var(--cream);border-bottom:1px solid var(--border);padding:0.55rem 1.25rem;position:sticky;top:41px;z-index:20}
+.week-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.nav-week-label{font-size:0.85rem;font-weight:400;min-width:150px;color:var(--ink)}
+.nav-btn{padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);transition:all 0.15s}
+.nav-btn:hover{border-color:var(--ink);color:var(--ink)}
+.nav-btn.active{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.nav-arrow{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;color:var(--muted)}
+.nav-arrow:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.nav-sep{width:1px;height:18px;background:var(--border);margin:0 2px}
+
+/* MAIN */
+main{max-width:900px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
+.page{display:none;animation:fadeIn 0.2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.section-heading{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:0 0 0.65rem;display:flex;align-items:center;gap:8px}
+.section-heading::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-block{margin-bottom:1.6rem}
+.meal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:10px}
+
+/* CARDS */
+.meal-card{background:white;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;cursor:pointer;transition:box-shadow 0.15s,transform 0.15s;position:relative}
+.meal-card:hover{box-shadow:0 6px 24px rgba(28,25,23,0.09);transform:translateY(-1px)}
+.meal-card.big{border-top:3px solid var(--green)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
+.card-name{font-family:'Playfair Display',serif;font-size:0.98rem;font-weight:400;line-height:1.3;margin-bottom:4px}
+.card-desc{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:7px}
+.card-icon{font-size:20px;line-height:1;flex-shrink:0;margin-left:8px}
+.card-hint{font-size:10px;color:var(--muted);opacity:0.55;margin-top:6px}
+.card-rating{font-size:11px;margin-top:4px;color:var(--amber);font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:3px}
+.tag{font-size:10px;padding:2px 7px;border-radius:99px;letter-spacing:0.03em;font-weight:500}
+.tag-grön{background:var(--green-light);color:var(--green)}
+.tag-fisk{background:var(--blue-light);color:var(--blue)}
+.tag-kött{background:var(--red-light);color:var(--red)}
+.tag-matlåda{background:#D1FAE5;color:#065F46}
+.tag-potatis{background:var(--amber-light);color:var(--amber)}
+.tag-baljväxter{background:var(--purple-light);color:var(--purple)}
+
+/* PORTIONS COUNTER ON CARD */
+.card-portions{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.portions-label{font-size:10px;color:var(--muted);letter-spacing:0.04em}
+.portions-ctrl{display:flex;align-items:center;gap:4px}
+.portions-btn{width:20px;height:20px;border-radius:50%;border:1px solid var(--border);background:var(--cream);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;line-height:1;color:var(--ink);transition:all 0.12s;flex-shrink:0}
+.portions-btn:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.portions-num{font-size:13px;font-weight:500;min-width:16px;text-align:center}
+
+.swap-btn{position:absolute;bottom:9px;right:9px;background:var(--cream);border:1px solid var(--border);border-radius:99px;font-size:10px;padding:2px 8px;cursor:pointer;color:var(--muted);transition:all 0.15s;z-index:2;font-family:'DM Sans',sans-serif}
+.swap-btn:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.badge-mat{font-size:9px;background:var(--green-light);color:var(--green);border-radius:99px;padding:2px 7px;font-weight:500;white-space:nowrap;margin-top:4px;display:inline-block}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(28,25,23,0.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex;animation:fadeOverlay 0.2s ease}
+@keyframes fadeOverlay{from{opacity:0}to{opacity:1}}
+.modal{background:var(--cream);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;animation:slideUp 0.22s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{background:var(--ink);color:var(--cream);padding:1.3rem 1.4rem 1rem;border-radius:16px 16px 0 0;position:relative}
+.modal-header .m-icon{font-size:1.7rem;margin-bottom:0.35rem;display:block}
+.modal-header h2{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:400;line-height:1.3}
+.modal-header p{font-size:11px;color:rgba(247,244,239,0.45);margin-top:2px;letter-spacing:0.04em;text-transform:uppercase}
+.modal-close{position:absolute;top:0.9rem;right:0.9rem;background:rgba(255,255,255,0.1);border:none;color:var(--cream);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background 0.15s}
+.modal-close:hover{background:rgba(255,255,255,0.2)}
+.modal-body{padding:1.3rem}
+.modal-tabs{display:flex;gap:5px;margin-bottom:1.1rem;border-bottom:1px solid var(--border);padding-bottom:0.65rem}
+.modal-tab{padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--muted);transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.modal-tab.active{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.modal-pane{display:none}.modal-pane.active{display:block}
+
+.recipe-section{margin-bottom:1.1rem}
+.recipe-section h3{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.55rem;display:flex;align-items:center;gap:8px}
+.recipe-section h3::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Ingredient rows in modal */
+.ingredients{list-style:none;display:flex;flex-direction:column;gap:0}
+.ing-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 8px;border-radius:7px;cursor:pointer;transition:background 0.12s;border-bottom:1px solid var(--border);gap:8px}
+.ing-row:last-child{border-bottom:none}
+.ing-row:hover{background:rgba(28,25,23,0.04)}
+.ing-row.section-header{cursor:default;padding-top:10px;border-bottom:none}
+.ing-row.section-header:hover{background:transparent}
+.ing-row.section-header span{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+.ing-left{display:flex;align-items:center;gap:8px;flex:1}
+.ing-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s;background:white}
+.ing-check.checked{background:var(--green);border-color:var(--green);color:white}
+.ing-name-text{color:var(--ink)}
+.ing-qty{color:var(--muted);font-size:12px;white-space:nowrap}
+.add-to-list-btn{font-size:10px;padding:2px 8px;border-radius:99px;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--muted);transition:all 0.12s;white-space:nowrap;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.add-to-list-btn:hover,.add-to-list-btn.added{background:var(--green);color:white;border-color:var(--green)}
+.add-to-list-btn.added{cursor:default}
+
+.steps{list-style:none;display:flex;flex-direction:column;gap:8px}
+.steps li{display:flex;gap:8px;font-size:13px;line-height:1.6}
+.step-num{min-width:19px;height:19px;border-radius:50%;background:var(--ink);color:var(--cream);font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;margin-top:2px;flex-shrink:0}
+.servings-row{display:flex;align-items:center;gap:7px;margin-bottom:0.9rem;font-size:12px;color:var(--muted)}
+.servings-row button{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:white;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;color:var(--ink)}
+.servings-row button:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.servings-count{font-size:14px;font-weight:500;color:var(--ink);min-width:16px;text-align:center}
+
+/* RATING */
+.rating-section{margin-bottom:0.9rem}
+.rating-name-input{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;margin-bottom:0.75rem}
+.rating-name-input:focus{border-color:var(--ink)}
+.stars-row{display:flex;gap:4px;margin-bottom:0.9rem;flex-wrap:wrap}
+.star-btn{width:34px;height:34px;border-radius:7px;border:1px solid var(--border);background:white;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.12s;color:var(--muted);font-family:'DM Sans',sans-serif}
+.star-btn:hover,.star-btn.sel{background:var(--amber);color:white;border-color:var(--amber)}
+.submit-rating{padding:7px 18px;background:var(--ink);color:var(--cream);border:none;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;transition:opacity 0.15s}
+.submit-rating:hover{opacity:0.85}
+.submit-rating:disabled{opacity:0.4;cursor:not-allowed}
+.ratings-list{display:flex;flex-direction:column;gap:7px;margin-top:0.9rem}
+.rating-entry{display:flex;justify-content:space-between;align-items:center;padding:7px 11px;background:white;border-radius:8px;border:1px solid var(--border);font-size:13px}
+.rating-score{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--amber)}
+.rating-meta{font-size:11px;color:var(--muted);margin-top:1px}
+.no-ratings{font-size:13px;color:var(--muted);font-style:italic}
+.rating-status{font-size:12px;color:var(--green);margin-top:5px;min-height:15px}
+
+/* SWAP MODAL */
+.swap-modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(28,25,23,0.6);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem}
+.swap-modal-overlay.open{display:flex;animation:fadeOverlay 0.2s ease}
+.swap-modal{background:var(--cream);border-radius:16px;width:100%;max-width:460px;max-height:82vh;overflow-y:auto;animation:slideUp 0.22s ease}
+.swap-modal-header{background:var(--ink);color:var(--cream);padding:1.15rem 1.3rem;border-radius:16px 16px 0 0;position:relative}
+.swap-modal-header h2{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:400}
+.swap-modal-header p{font-size:11px;color:rgba(247,244,239,0.45);margin-top:2px}
+.swap-modal-close{position:absolute;top:0.9rem;right:0.9rem;background:rgba(255,255,255,0.1);border:none;color:var(--cream);width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.swap-modal-body{padding:1.1rem}
+.swap-search{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;margin-bottom:0.65rem}
+.swap-search:focus{border-color:var(--ink)}
+.swap-options{display:flex;flex-direction:column;gap:5px}
+.swap-option{padding:9px 12px;background:white;border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all 0.15s;text-align:left;font-family:'DM Sans',sans-serif;width:100%}
+.swap-option:hover{border-color:var(--ink);box-shadow:0 2px 8px rgba(28,25,23,0.07)}
+.swap-option-name{font-family:'Playfair Display',serif;font-size:0.9rem;margin-bottom:2px}
+.swap-option-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.swap-divider{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:0.65rem 0 0.45rem;display:flex;align-items:center;gap:8px}
+.swap-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.swap-random-btn{width:100%;padding:8px;background:var(--cream);border:1px dashed var(--border);border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);transition:all 0.15s;margin-bottom:0.4rem}
+.swap-random-btn:hover{border-color:var(--ink);color:var(--ink)}
+.swap-ai-btn{width:100%;padding:8px;background:var(--ink);color:var(--cream);border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;transition:opacity 0.15s}
+.swap-ai-btn:hover{opacity:0.85}
+.ai-loading{text-align:center;padding:0.9rem;font-size:12px;color:var(--muted)}
+
+/* SHOPPING LIST PAGE */
+.shop-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px}
+.shop-header-row h2{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:400}
+.shop-clear-btn{font-size:12px;padding:5px 12px;border-radius:99px;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.shop-clear-btn:hover{background:var(--red-light);color:var(--red);border-color:var(--red)}
+
+.shop-add-row{display:flex;gap:7px;margin-bottom:1.5rem;flex-wrap:wrap}
+.shop-add-input{flex:1;min-width:160px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none}
+.shop-add-input:focus{border-color:var(--ink)}
+.shop-cat-select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;color:var(--ink);cursor:pointer}
+.shop-add-btn{padding:8px 16px;background:var(--ink);color:var(--cream);border:none;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;transition:opacity 0.15s;white-space:nowrap}
+.shop-add-btn:hover{opacity:0.85}
+
+.shop-category{margin-bottom:1.25rem}
+.shop-cat-heading{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;display:flex;align-items:center;gap:8px}
+.shop-cat-heading::after{content:'';flex:1;height:1px;background:var(--border)}
+.shop-items{display:flex;flex-direction:column;gap:2px}
+.shop-item{display:flex;align-items:center;gap:10px;padding:8px 11px;background:white;border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;user-select:none}
+.shop-item:hover{background:#fafafa}
+.shop-item.done{opacity:0.45}
+.shop-item.done .shop-item-text{text-decoration:line-through;color:var(--muted)}
+.shop-item-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s;background:white}
+.shop-item.done .shop-item-check{background:var(--green);border-color:var(--green);color:white}
+.shop-item-text{font-size:13px;flex:1}
+.shop-item-qty{font-size:11px;color:var(--muted)}
+.shop-item-del{width:20px;height:20px;border-radius:50%;border:none;background:transparent;cursor:pointer;color:var(--muted);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.12s;flex-shrink:0;line-height:1}
+.shop-item-del:hover{background:var(--red-light);color:var(--red)}
+.shop-empty{font-size:13px;color:var(--muted);font-style:italic;padding:1rem 0}
+
+footer{text-align:center;padding:1.5rem;font-size:11px;color:var(--muted);border-top:1px solid var(--border);letter-spacing:0.04em}
+@media(max-width:500px){.meal-grid{grid-template-columns:1fr}header{padding:1.25rem 1rem}.modal-body{padding:1rem}.shop-add-row{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-sub">Gemensam matplanering</div>
+    <h1>Veckans mat</h1>
+  </div>
+</header>
+
+<div class="top-tabs">
+  <div class="top-tabs-inner">
+    <button class="top-tab active" onclick="showPage('matsedel',this)">Matsedel</button>
+    <button class="top-tab" id="shop-tab" onclick="showPage('inkop',this)">Inköpslista <span class="badge" id="shop-badge" style="display:none">0</span></button>
+  </div>
+</div>
+
+<nav class="week-nav" id="week-nav">
+  <div class="week-nav-inner">
+    <button class="nav-arrow" id="prev-week">←</button>
+    <span class="nav-week-label" id="week-label"></span>
+    <button class="nav-arrow" id="next-week">→</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn active" id="btn-current">Denna vecka</button>
+    <button class="nav-btn" id="btn-next">Nästa vecka</button>
+  </div>
+</nav>
+
+<main>
+  <div class="page active" id="page-matsedel"></div>
+  <div class="page" id="page-inkop">
+    <div class="shop-header-row">
+      <h2>Inköpslista</h2>
+      <button class="shop-clear-btn" onclick="clearDone()">Rensa klara</button>
+    </div>
+    <div class="shop-add-row">
+      <input class="shop-add-input" id="shop-input" placeholder="Lägg till produkt..." onkeydown="if(event.key==='Enter')addManual()">
+      <select class="shop-cat-select" id="shop-cat-select">
+        <option value="Frukt & grönsaker">🥦 Frukt & grönt</option>
+        <option value="Kött & fisk">🥩 Kött & fisk</option>
+        <option value="Mejeri">🥛 Mejeri</option>
+        <option value="Skafferi">🫙 Skafferi</option>
+        <option value="Snacks">🍫 Snacks</option>
+        <option value="Hushåll">🧻 Hushåll</option>
+        <option value="Övrigt">📦 Övrigt</option>
+      </select>
+      <button class="shop-add-btn" onclick="addManual()">+ Lägg till</button>
+    </div>
+    <div id="shop-list"></div>
+  </div>
+</main>
+
+<!-- Recipe / Rating modal -->
+<div class="modal-overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <button class="modal-close" id="modal-close">✕</button>
+      <span class="m-icon" id="m-icon"></span>
+      <h2 id="m-title"></h2>
+      <p id="m-meta"></p>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="modal-tab active" onclick="switchTab('recept')">Recept</button>
+        <button class="modal-tab" onclick="switchTab('betyg')">Betygsätt</button>
+      </div>
+      <div class="modal-pane active" id="pane-recept">
+        <div class="servings-row">
+          <button id="srv-down">−</button>
+          <span class="servings-count" id="srv-count">4</span>
+          <span>portioner</span>
+          <button id="srv-up">+</button>
+        </div>
+        <div class="recipe-section">
+          <h3>Ingredienser — klicka för att lägga till inköpslistan</h3>
+          <ul class="ingredients" id="m-ingredients"></ul>
+        </div>
+        <div class="recipe-section">
+          <h3>Tillagning</h3>
+          <ol class="steps" id="m-steps"></ol>
+        </div>
+      </div>
+      <div class="modal-pane" id="pane-betyg">
+        <div class="rating-section">
+          <input class="rating-name-input" id="rating-name" placeholder="Ditt namn (t.ex. Adam)" maxlength="30">
+          <div class="stars-row" id="stars-row"></div>
+          <button class="submit-rating" id="submit-rating" onclick="submitRating()">Spara betyg</button>
+          <div class="rating-status" id="rating-status"></div>
+        </div>
+        <div class="recipe-section" style="margin-top:1rem">
+          <h3>Tidigare betyg</h3>
+          <div id="ratings-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Swap modal -->
+<div class="swap-modal-overlay" id="swap-overlay">
+  <div class="swap-modal">
+    <div class="swap-modal-header">
+      <button class="swap-modal-close" onclick="closeSwap()">✕</button>
+      <h2>Byt rätt</h2>
+      <p id="swap-current-name"></p>
+    </div>
+    <div class="swap-modal-body">
+      <input class="swap-search" id="swap-search" placeholder="Sök på ingrediens, t.ex. tomat, lax..." oninput="filterSwap()">
+      <button class="swap-random-btn" onclick="randomSwap()">🎲 Slumpa en liknande rätt</button>
+      <div class="swap-divider">eller välj</div>
+      <div class="swap-options" id="swap-options"></div>
+      <div class="swap-divider" style="margin-top:0.75rem">ai-förslag</div>
+      <button class="swap-ai-btn" onclick="aiSwap()">✨ Generera nytt recept med AI</button>
+      <div id="ai-loading" class="ai-loading" style="display:none">Genererar recept...</div>
+    </div>
+  </div>
+</div>
+
+<footer>Gjord med ❤ för er båda</footer>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbzGUFy6_e5vsmWbw3RYQDsdPKWVzLW_cXvqntnx4-iPV0lQ0F_RNRosmlpYgBoaG0fr/exec';
+
+// ─── SHOPPING LIST STATE ─────────────────────────────────────────────────────
+// {id, text, qty, category, done}
+let shopItems = JSON.parse(localStorage.getItem('shopItems')||'[]');
+
+function saveShop(){localStorage.setItem('shopItems',JSON.stringify(shopItems));updateBadge();renderShopList()}
+
+const CATEGORIES=['Frukt & grönsaker','Kött & fisk','Mejeri','Skafferi','Snacks','Hushåll','Övrigt'];
+const CAT_ICONS={'Frukt & grönsaker':'🥦','Kött & fisk':'🥩','Mejeri':'🥛','Skafferi':'🫙','Snacks':'🍫','Hushåll':'🧻','Övrigt':'📦'};
+
+// Ingredient → category mapping (keyword based)
+function guessCategory(name){
+  const n=name.toLowerCase();
+  const fruit=['äpple','päron','banan','citron','lime','apelsin','mango','bär','vindruv','avocado','tomat','körsbär'];
+  const veg=['lök','vitlök','ingefära','morot','selleri','potatis','purjo','zucchini','paprika','spenat','kål','broccoli','aubergine','gurka','sallad','persilja','koriander','dill','basilika','mynta','gräslök','rosmarin','timjan','lins','kikärt','böna','ärta','majs','couscous','bulgur'];
+  const meat=['kött','fäns','fläsk','kyckling','lax','torsk','fisk','räk','tonfisk','ansjovis'];
+  const dairy=['mjölk','grädde','smör','ost','yoghurt','crème','keso','fetaost','halloumi','ägg'];
+  const pantry=['olja','vinäger','socker','salt','peppar','mjöl','ris','pasta','buljong','tomat','konserv','burk','nudel','soja','senap','honung','ströbröd','lasagne','tortilla','kokosmjölk','chipot','harissa','garam','kummin','koriander mald','spiskummin','gurkmeja','paprikapulver','oregano','kanel','muskotnöt','chili','curry','kaviar','inlagd'];
+  if(fruit.some(k=>n.includes(k)))return'Frukt & grönsaker';
+  if(veg.some(k=>n.includes(k)))return'Frukt & grönsaker';
+  if(meat.some(k=>n.includes(k)))return'Kött & fisk';
+  if(dairy.some(k=>n.includes(k)))return'Mejeri';
+  if(pantry.some(k=>n.includes(k)))return'Skafferi';
+  return'Övrigt';
+}
+
+function addToShop(name,qty){
+  const cat=guessCategory(name);
+  const existing=shopItems.find(i=>i.text.toLowerCase()===name.toLowerCase());
+  if(existing){existing.done=false;}
+  else{shopItems.push({id:Date.now()+'_'+Math.random(),text:name,qty:qty||'',category:cat,done:false});}
+  saveShop();
+}
+
+function addManual(){
+  const input=document.getElementById('shop-input');
+  const cat=document.getElementById('shop-cat-select').value;
+  const text=input.value.trim();
+  if(!text)return;
+  shopItems.push({id:Date.now()+'_'+Math.random(),text,qty:'',category:cat,done:false});
+  input.value='';
+  saveShop();
+}
+
+function toggleShopItem(id){
+  const item=shopItems.find(i=>i.id===id);
+  if(item)item.done=!item.done;
+  saveShop();
+}
+
+function deleteShopItem(id){
+  shopItems=shopItems.filter(i=>i.id!==id);
+  saveShop();
+}
+
+function clearDone(){
+  shopItems=shopItems.filter(i=>!i.done);
+  saveShop();
+}
+
+function updateBadge(){
+  const count=shopItems.filter(i=>!i.done).length;
+  const badge=document.getElementById('shop-badge');
+  badge.textContent=count;
+  badge.style.display=count>0?'inline':'none';
+}
+
+function renderShopList(){
+  const el=document.getElementById('shop-list');
+  if(!el)return;
+  const active=shopItems.filter(i=>!i.done);
+  const done=shopItems.filter(i=>i.done);
+  const all=[...active,...done];
+  if(!all.length){el.innerHTML='<p class="shop-empty">Inköpslistan är tom</p>';return;}
+  let html='';
+  CATEGORIES.forEach(cat=>{
+    const items=all.filter(i=>i.category===cat);
+    if(!items.length)return;
+    html+=`<div class="shop-category"><div class="shop-cat-heading">${CAT_ICONS[cat]} ${cat}</div><div class="shop-items">`;
+    items.forEach(item=>{
+      html+=`<div class="shop-item${item.done?' done':''}" onclick="toggleShopItem('${item.id}')">
+        <div class="shop-item-check">${item.done?'✓':''}</div>
+        <span class="shop-item-text">${item.text}</span>
+        ${item.qty?`<span class="shop-item-qty">${item.qty}</span>`:''}
+        <button class="shop-item-del" onclick="event.stopPropagation();deleteShopItem('${item.id}')">×</button>
+      </div>`;
+    });
+    html+='</div></div>';
+  });
+  el.innerHTML=html;
+}
+
+// ─── PAGE SWITCHING ──────────────────────────────────────────────────────────
+function showPage(p,el){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.top-tab').forEach(e=>e.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('week-nav').style.display=p==='matsedel'?'block':'none';
+  if(p==='inkop')renderShopList();
+}
+
+// ─── MEALS DATA ──────────────────────────────────────────────────────────────
+const mealPool=[
+  {n:"Röd linschili med kokosmjölk",d:"Indisk-inspirerad linschili med tomat, ingefära, spiskummin och koriander. Serveras med ris.",t:["baljväxter","matlåda","grön"],i:"🍲"},
+  {n:"Ugnsbakad lax med klyftpotatis och örter",d:"Lax med citrondressing, klyftpotatis med rosmarin och fetaost, grönkålssallad.",t:["fisk","potatis","matlåda"],i:"🐟"},
+  {n:"Klassisk lasagne med köttfärssås och bechamel",d:"Lasagne med mustigt köttfärs, krämig bechamelsås och gratinerad osttopping.",t:["kött"],i:"🫕"},
+  {n:"Vegetariska tacos",d:"Tacos med svarta bönor, majs, avocado, salsa och jalapeño.",t:["baljväxter","grön"],i:"🌮"},
+  {n:"Svarta bönor i chipotle och tomatbas",d:"Mexikansk-inspirerad böngryta med rökt smak. Serveras med ris och crème fraîche.",t:["baljväxter","matlåda","grön"],i:"🌶️"},
+  {n:"Torskrygg med rotmossmos och skirat smör",d:"Husmanskost med mosad rotselleri och potatis, kapris och dill.",t:["fisk","potatis","matlåda"],i:"🐟"},
+  {n:"Halloumi med klyftpotatis och grönsalsa",d:"Stekt halloumi med ugnsrostad potatis och fräsch salsa verde.",t:["potatis","grön"],i:"🧀"},
+  {n:"Thai grön curry med tofu och grönsaker",d:"Kokosmjölksbaserad curry med zucchini, paprika och sockerärtor.",t:["grön","baljväxter"],i:"🍜"},
+  {n:"Gul linssoppa med kummin och citron",d:"Nordafrikansk-inspirerad soppa med massor av kryddor. Serveras med knäckebröd.",t:["baljväxter","matlåda","grön"],i:"🥣"},
+  {n:"Köttfärssås med pasta och rotgrönsaker",d:"Bolognese med morötter, selleri och tomat. Serveras med pasta och riven ost.",t:["kött","matlåda"],i:"🍝"},
+  {n:"Potatissoppa med brynt smör och gräslök",d:"Krämig klassiker med bakad potatis, purjolök och grädde.",t:["potatis","grön"],i:"🥣"},
+  {n:"Marockansk kikärtsgryta med morötter",d:"Tagine-inspirerad gryta med kanel, spiskummin och torkad frukt. Serveras med couscous.",t:["baljväxter","matlåda","grön"],i:"🫕"},
+  {n:"Senapslax med dillpotatis och spenat",d:"Ugnslagad lax med senapsmarinad, kokt dillpotatis och spenatsallad med citron.",t:["fisk","potatis","matlåda"],i:"🐟"},
+  {n:"Klyftpotatis med tzatziki och grönsaker",d:"Ugnsrostad klyftpotatis med hemgjord tzatziki, tabbouleh och olivröra.",t:["potatis","grön"],i:"🥔"},
+  {n:"Pytt i panna",d:"Klassisk husmanskost med potatis, rotsaker och ägg. Serveras med inlagd rödbeta.",t:["kött","potatis"],i:"🍳"},
+  {n:"Röda kidney-bönor i tomatchili",d:"Kryddig bönchili med ancho, paprika och lök. Serveras med ris och avocado.",t:["baljväxter","matlåda","grön"],i:"🌶️"},
+  {n:"Fiskgratäng med klyftpotatis och dillsås",d:"Ugnslagad vit fisk med ostskorpa, klyftpotatis och krämig dillsås.",t:["fisk","potatis","matlåda"],i:"🐟"},
+  {n:"Dal makhani (smörlinser)",d:"Krämiga svarta linser från Punjab med lång koktid och smör. Serveras med ris.",t:["baljväxter","grön"],i:"🍲"},
+  {n:"Grönsakspaj med fetaost och potatisbotten",d:"Paj med potatisbotten fylld med fetaost, spenat och soltorkad tomat.",t:["potatis","grön"],i:"🥧"},
+];
+
+const recipes={
+  "Röd linschili med kokosmjölk":{servings:6,ingredients:[["Röda linser","400 g"],["Kokosmjölk","400 ml"],["Krossade tomater","400 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Färsk ingefära","2 msk riven"],["Spiskummin, mald","2 tsk"],["Koriander, mald","1 tsk"],["Garam masala","1 tsk"],["Chiliflakes","½ tsk"],["Grönsaksbuljongtärning","1 st"],["Rapsolja","2 msk"],["Salt & peppar","efter smak"],["Färsk koriander","till servering"],["Ris (basmati)","till servering"]],steps:["Hacka lök och vitlök fint. Riv ingefäran.","Fräs lök i olja på medelvärme ca 5 min. Tillsätt vitlök och ingefära, fräs 1 min.","Rör ner spiskummin, koriander, garam masala och chiliflakes. Fräs 30 sekunder.","Skölj linserna. Tillsätt linser, krossade tomater och kokosmjölk. Rör om.","Lös buljong i 3 dl vatten och häll i grytan. Koka upp.","Sänk värmen, lägg på lock och sjud 25–30 min tills linserna är mjuka. Rör om ibland.","Smaka av med salt, peppar och ev. mer chili. Servera med ris och färsk koriander."]},
+  "Ugnsbakad lax med klyftpotatis och örter":{servings:4,ingredients:[["Laxfilé","600 g"],["Fast potatis","800 g"],["Fetaost","100 g"],["Citron","1 st"],["Vitlök","3 klyftor"],["Färsk rosmarin","3 kvistar"],["Olivolja","3 msk"],["Grönkål","100 g"],["Dijonsenap","1 msk"],["Honung","1 tsk"],["Salt & peppar","efter smak"]],steps:["Värm ugnen till 200°C. Skär potatisen i klyftor och blanda med olivolja, hackad vitlök, rosmarin, salt och peppar.","Bred ut potatisen på en plåt och rosta 25 min.","Vispa ihop citronjuice, senap, honung och 1 msk olivolja till en dressing.","Lägg laxen på plåten bland potatisen, pensla med dressingen. Smula över fetaost.","Baka ytterligare 12–15 min tills laxen är genomvarm.","Massera grönkålen med lite olivolja och citronsaft. Servera allt tillsammans."]},
+  "Klassisk lasagne med köttfärssås och bechamel":{servings:6,ingredients:[["Nötfärs","500 g"],["Krossade tomater","800 g"],["Gul lök","2 st"],["Vitlök","3 klyftor"],["Tomatpuré","2 msk"],["Torrt rödvin","1 dl"],["Oregano, torkad","2 tsk"],["Lasagneplattor","12–15 st"],["Riven ost","150 g"],["— Bechamel —",""],["Smör","50 g"],["Vetemjöl","4 msk"],["Mjölk","6 dl"],["Muskotnöt, riven","½ tsk"],["Salt & peppar","efter smak"]],steps:["Hacka lök och vitlök. Fräs i olja tills mjuk, ca 5 min. Tillsätt köttfärs och bryn.","Rör ner tomatpuré, oregano och rödvin. Koka 1 min. Tillsätt krossade tomater.","Sjud köttfärssåsen på låg värme 20–25 min. Smaka av med salt och peppar.","Bechamel: Smält smör i en kastrull. Rör ner mjöl och fräs 1 min. Häll i mjölk lite i taget under konstant vispning.","Koka bechamelen under omrörning tills tjock, ca 5 min. Krydda med muskotnöt, salt och peppar.","Värm ugnen till 200°C. Varva köttfärssås, lasagneplattor och bechamel i en form. Avsluta med bechamel och riven ost.","Grädda 35–40 min tills gyllenbrun. Låt vila 10 min före servering."]},
+  "Vegetariska tacos":{servings:4,ingredients:[["Svarta bönor (burk)","2 x 400 g"],["Majs (burk)","1 x 200 g"],["Mjuka tortillas","8–10 st"],["Avocado","2 st"],["Körsbärstomater","200 g"],["Rödlök","1 st"],["Jalapeño (inlagd)","efter smak"],["Lime","1 st"],["Spiskummin","1 tsk"],["Paprikapulver, rökt","1 tsk"],["Olivolja","1 msk"],["Koriander","½ kruka"],["Crème fraîche","till servering"],["Salt","efter smak"]],steps:["Skölj och avrina bönor och majs. Fräs med spiskummin och paprikapulver i olivolja 3–4 min. Smaka av med salt.","Tärna avocado, halvera tomaterna, finhacka rödlök och koriander. Blanda med limejuice.","Värm tortillorna torrt i stekpanna eller i ugn (200°C, 3 min).","Lägg upp alla tillbehör och låt var och en bygga sina egna tacos."]},
+  "Svarta bönor i chipotle och tomatbas":{servings:6,ingredients:[["Svarta bönor (burk)","3 x 400 g"],["Krossade tomater","400 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Chipotlepasta","2 msk"],["Spiskummin","2 tsk"],["Oregano","1 tsk"],["Grönsaksbuljongtärning","1 st"],["Rapsolja","2 msk"],["Lime","1 st"],["Crème fraîche","till servering"],["Ris","till servering"],["Salt & peppar","efter smak"]],steps:["Hacka lök och vitlök, fräs i olja ca 5 min.","Tillsätt chipotlepasta, spiskummin och oregano. Fräs 1 min.","Rör ner krossade tomater och avrinnade bönor. Häll i 2 dl vatten med buljong.","Sjud 20 min tills såsen tjocknat. Smaka av med limejuice, salt och peppar.","Servera med ris och en klick crème fraîche."]},
+  "Torskrygg med rotmossmos och skirat smör":{servings:4,ingredients:[["Torskrygg","600 g"],["Rotselleri","400 g"],["Fast potatis","400 g"],["Smör","100 g"],["Mjölk eller grädde","1 dl"],["Kapris","2 msk"],["Dill","½ kruka"],["Citron","1 st"],["Salt & vitpeppar","efter smak"]],steps:["Skala och tärna rotselleri och potatis. Koka mjuka i saltat vatten, ca 20 min.","Häll av vattnet. Mosa med smör (50 g) och mjölk. Smaka av med salt och vitpeppar.","Salta torskryggen. Stek i smör på medelvärme 3–4 min per sida tills genomvarm.","Skira resterande smör i en liten kastrull tills gyllengult och nötaktigt, ca 3 min.","Servera torsken på moset. Toppa med skirat smör, kapris, dill och citronsaft."]},
+  "Halloumi med klyftpotatis och grönsalsa":{servings:4,ingredients:[["Halloumi","400 g"],["Fast potatis","700 g"],["Olivolja","3 msk"],["— Salsa verde —",""],["Persilja","1 kruka"],["Basilika","½ kruka"],["Kapris","2 msk"],["Vitlök","1 klyfta"],["Dijonsenap","1 tsk"],["Citronsaft","2 msk"],["Olivolja (salsa)","3 msk"],["Salt & peppar","efter smak"]],steps:["Skär potatis i klyftor, blanda med olivolja, salt och peppar. Rosta i 200°C ca 30 min.","Mixa persilja, basilika, kapris, vitlök, senap och citronsaft till en grov salsa. Tillsätt olivolja och smaka av.","Skär halloumin i skivor, ca 1 cm tjocka. Stek i torr het panna 2 min per sida tills gyllenbrun.","Servera halloumi och potatis med riklig salsa verde."]},
+  "Thai grön curry med tofu och grönsaker":{servings:4,ingredients:[["Fast tofu","400 g"],["Kokosmjölk","400 ml"],["Grön currypasta","2–3 msk"],["Zucchini","1 st"],["Röd paprika","1 st"],["Sockerärtor","150 g"],["Babyspenat","60 g"],["Fisksås eller sojasås","2 msk"],["Palmsocker","1 tsk"],["Lime","1 st"],["Kokosolja","1 msk"],["Jasminris","till servering"]],steps:["Pressa tofu torr, tärna och stek gyllenbrun i kokosolja ca 5 min. Ta ur pannan.","Fräs currypastan i samma panna 1 min. Häll i kokosmjölken och koka upp.","Tillsätt zucchini och paprika, sjud 5 min. Lägg i sockerärtor och tofu.","Smaka av med fisksås, socker och lime. Rör ner spenaten sist.","Servera med jasminris och basilika."]},
+  "Gul linssoppa med kummin och citron":{servings:6,ingredients:[["Gula linser","400 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Morötter","2 st"],["Spiskummin","2 tsk"],["Gurkmeja","1 tsk"],["Koriander, mald","1 tsk"],["Cayennepeppar","¼ tsk"],["Grönsaksbuljongtärning","2 st"],["Citron","1 st"],["Olivolja","2 msk"],["Salt & peppar","efter smak"],["Knäckebröd","till servering"]],steps:["Hacka lök, vitlök och morötter. Fräs i olivolja ca 5 min.","Tillsätt spiskummin, gurkmeja, koriander och cayenne. Fräs 1 min.","Skölj linserna och tillsätt med 1,5 liter vatten och buljongtärningar. Koka upp.","Sjud under lock 25 min tills linser och morötter är mjuka.","Mixa slät med stavmixer. Smaka av med citronjuice, salt och peppar.","Servera med knäckebröd och en ringla olivolja."]},
+  "Köttfärssås med pasta och rotgrönsaker":{servings:6,ingredients:[["Nötfärs","500 g"],["Krossade tomater","800 g"],["Gul lök","2 st"],["Morot","2 st"],["Selleri","2 stjälkar"],["Vitlök","3 klyftor"],["Tomatpuré","2 msk"],["Rödvin","1 dl"],["Oregano & basilika","1 tsk vardera"],["Olivolja","2 msk"],["Pasta","till servering"],["Riven parmesan","till servering"],["Salt & peppar","efter smak"]],steps:["Finhacka lök, morot, selleri och vitlök. Fräs mjukt i olivolja ca 8 min.","Höj värmen, tillsätt köttfärs och bryn väl. Rör ner tomatpuré.","Häll i rödvin, låt avdunsta 2 min. Tillsätt krossade tomater och örter.","Sjud på låg värme 30–40 min. Smaka av med salt och peppar.","Koka pasta enligt förpackning. Servera med riklig sås och riven parmesan."]},
+  "Potatissoppa med brynt smör och gräslök":{servings:4,ingredients:[["Mjölig potatis","800 g"],["Purjolök","2 st"],["Smör","75 g"],["Grädde","1 dl"],["Grönsaksbuljongtärning","2 st"],["Vitlök","2 klyftor"],["Gräslök","½ kruka"],["Salt & vitpeppar","efter smak"]],steps:["Skala och tärna potatis. Skiva purjolök. Fräs purjolök i 25 g smör 3 min.","Tillsätt potatis, vitlök och 1,2 liter vatten med buljongtärningar. Koka 20 min.","Mixa slät. Rör ner grädde, smaka av med salt och vitpeppar.","Bryn resterande smör i en liten kastrull tills gyllengult och nötaktigt.","Servera soppan med brynt smör ringat ovanpå och klippt gräslök."]},
+  "Marockansk kikärtsgryta med morötter":{servings:6,ingredients:[["Kikärter (burk)","2 x 400 g"],["Morötter","4 st"],["Krossade tomater","400 g"],["Gul lök","2 st"],["Vitlök","3 klyftor"],["Torkade aprikoser","100 g"],["Spiskummin","2 tsk"],["Kanel","1 tsk"],["Koriander, mald","1 tsk"],["Ingefära, mald","½ tsk"],["Harissa","1 tsk"],["Grönsaksbuljongtärning","1 st"],["Couscous","till servering"],["Färsk koriander","till servering"]],steps:["Skär morötter i bitar, hacka lök och vitlök. Fräs i olja 5 min.","Tillsätt alla kryddor och harissa, fräs 1 min.","Häll i tomater, kikärter, tärnade aprikoser och 3 dl vatten med buljong.","Sjud under lock 30 min tills morötter är mjuka. Smaka av.","Koka couscous enligt förpackning. Servera grytan med couscous och koriander."]},
+  "Senapslax med dillpotatis och spenat":{servings:4,ingredients:[["Laxfilé","600 g"],["Fast potatis","700 g"],["Babyspenat","100 g"],["Dijonsenap","3 msk"],["Honung","1 msk"],["Citron","1 st"],["Dill","1 kruka"],["Smör","20 g"],["Olivolja","2 msk"],["Salt & peppar","efter smak"]],steps:["Koka potatis i saltat vatten tills mjuk. Häll av och vänd med smör och hackad dill.","Blanda senap, honung, citronskal och lite citronsaft till marinad.","Lägg laxen i ugnsform, bred senapsmarinaden ovanpå. Baka i 200°C ca 12–14 min.","Fräs spenaten snabbt i lite olivolja tills precis ihopfalld.","Servera laxen med dillpotatis och spenat."]},
+  "Klyftpotatis med tzatziki och grönsaker":{servings:4,ingredients:[["Fast potatis","800 g"],["Olivolja","3 msk"],["Paprikapulver","1 tsk"],["— Tzatziki —",""],["Turkisk yoghurt (10%)","300 g"],["Gurka","½ st"],["Vitlök","1–2 klyftor"],["Olivolja (tzatziki)","1 msk"],["Dill eller mynta","1 msk hackad"],["Citronsaft","1 msk"],["— Tabbouleh —",""],["Bulgur","150 g"],["Tomater","2 st"],["Persilja","1 kruka"],["Citron","1 st"],["Salt & peppar","efter smak"]],steps:["Klyfta potatisen, blanda med olivolja, paprika, salt och peppar. Rosta i 220°C ca 30 min.","Riv gurkan grovt, salta och krama ur vätska. Blanda med yoghurt, pressad vitlök, dill, citronsaft och olja. Kyl.","Koka bulgur enligt förpackning, svalna. Blanda med tärnade tomater, persilja och citronjuice.","Servera klyftpotatis med tzatziki och tabbouleh."]},
+  "Pytt i panna":{servings:4,ingredients:[["Kokt potatis","600 g"],["Kokt kött (nöt/fläsk)","300 g"],["Gul lök","2 st"],["Rödbeta (inlagd)","1 burk"],["Smör","50 g"],["Ägg","4 st"],["Salt & peppar","efter smak"],["Persilja","till servering"]],steps:["Tärna potatis och kött i lika stora bitar, ca 1 cm. Hacka löken.","Stek lök i smör tills mjuk. Tillsätt potatis och stek gyllenbrun utan att röra för mycket, ca 8 min.","Tillsätt köttet och fräs ytterligare 5 min. Smaka av med salt och peppar.","Stek äggen separat, gärna med rinnig gula.","Servera pytten toppat med ett ägg och rödbeta på sidan. Strö över persilja."]},
+  "Röda kidney-bönor i tomatchili":{servings:6,ingredients:[["Kidney-bönor (burk)","3 x 400 g"],["Krossade tomater","800 g"],["Gul lök","2 st"],["Röd paprika","2 st"],["Vitlök","4 klyftor"],["Chipotle/ancho-chili","2 tsk"],["Spiskummin","2 tsk"],["Paprikapulver, rökt","1 tsk"],["Grönsaksbuljongtärning","1 st"],["Avocado","2 st"],["Lime","1 st"],["Ris","till servering"],["Salt & peppar","efter smak"]],steps:["Hacka lök, paprika och vitlök. Fräs i olja ca 6 min.","Tillsätt chili, spiskummin och paprikapulver. Fräs 1 min.","Häll i tomater, bönor och buljong löst i 1 dl vatten. Koka upp.","Sjud 25 min tills såsen tjocknat. Smaka av med salt, peppar och limejuice.","Servera med ris och skivad avocado."]},
+  "Fiskgratäng med klyftpotatis och dillsås":{servings:4,ingredients:[["Vit fisk (torsk/sej)","600 g"],["Fast potatis","700 g"],["Riven ost","100 g"],["Ströbröd","3 msk"],["Olivolja","2 msk"],["— Dillsås —",""],["Smör","25 g"],["Vetemjöl","2 msk"],["Mjölk","3 dl"],["Dill","1 kruka"],["Citron","½ st"],["Salt & vitpeppar","efter smak"]],steps:["Klyfta potatisen, rosta med olivolja, salt och peppar i 200°C ca 25 min.","Lägg fisken i ugnsform, salta och peppra. Blanda ost med ströbröd och strö över.","Grädda fisken i 200°C ca 15 min tills ostskorpan är gyllenbrun.","Dillsås: smält smör, rör ner mjöl. Vispa in mjölk lite i taget. Koka tjock. Rör ner hackad dill och citronsaft.","Servera gratängen med klyftpotatis och dillsåsen."]},
+  "Dal makhani (smörlinser)":{servings:6,ingredients:[["Svarta linser (urad dal)","300 g"],["Kidney-bönor (burk)","1 x 400 g"],["Smör","75 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Färsk ingefära","2 msk riven"],["Krossade tomater","400 g"],["Grädde","1 dl"],["Garam masala","1 tsk"],["Spiskummin","1 tsk"],["Koriander, mald","1 tsk"],["Chilipulver","½ tsk"],["Salt","efter smak"],["Ris","till servering"]],steps:["Blötlägg linserna minst 8 timmar. Koka i nytt vatten 1 timme tills mjuka.","Fräs lök i smör ca 8 min tills gyllenbrun. Tillsätt vitlök och ingefära, fräs 2 min.","Rör ner alla kryddor, fräs 1 min. Tillsätt tomater och sjud 10 min.","Häll i kokta linser, kidney-bönor och ev. lite vatten. Sjud 20–30 min, rör om ibland.","Rör ner grädde och smör. Smaka av med salt. Servera med ris."]},
+  "Grönsakspaj med fetaost och potatisbotten":{servings:4,ingredients:[["Mjölig potatis","600 g"],["Smör","40 g"],["Ägg","3 st"],["Fetaost","150 g"],["Babyspenat","80 g"],["Soltorkade tomater","80 g"],["Grädde","1,5 dl"],["Riven ost","50 g"],["Vitlök","1 klyfta"],["Salt, peppar & oregano","efter smak"]],steps:["Koka och mosa potatisen med smör och 1 ägg. Salta.","Tryck ut moset i en smord pajform som botten och kanter. Förgädda i 200°C i 10 min.","Blanda fetaost, spenat, tärnade soltorkade tomater och pressad vitlök.","Vispa grädde med 2 ägg, salt, peppar och oregano. Blanda med ostblandningen.","Häll fyllningen i pajskalet. Strö riven ost ovanpå.","Baka i 200°C ca 25 min tills pajen stelnat och fått lite färg."]}
+};
+
+const tagClass={grön:"tag-grön",fisk:"tag-fisk",kött:"tag-kött",matlåda:"tag-matlåda",potatis:"tag-potatis",baljväxter:"tag-baljväxter"};
+
+// ─── WEEK UTILS ──────────────────────────────────────────────────────────────
+function getISOWeek(d){
+  const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const day=date.getUTCDay()||7;
+  date.setUTCDate(date.getUTCDate()+4-day);
+  const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return{week:Math.ceil((((date-yearStart)/86400000)+1)/7),year:date.getUTCFullYear()};
+}
+function getISOWeeksInYear(year){const d=new Date(Date.UTC(year,11,28));return getISOWeek(d).week;}
+function getWeekStart(week,year){
+  const jan4=new Date(Date.UTC(year,0,4));
+  const day=jan4.getUTCDay()||7;
+  const ws=new Date(jan4);
+  ws.setUTCDate(jan4.getUTCDate()-day+1+(week-1)*7);
+  return ws;
+}
+function formatWeekLabel(week,year){
+  const start=getWeekStart(week,year);
+  const end=new Date(start);end.setUTCDate(start.getUTCDate()+6);
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const todayWY=getISOWeek(new Date());
+  let label=`v.${week} · ${start.getUTCDate()} ${months[start.getUTCMonth()]} – ${end.getUTCDate()} ${months[end.getUTCMonth()]}`;
+  if(week===todayWY.week&&year===todayWY.year)label+=' (denna vecka)';
+  return label;
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const today=new Date();
+const todayWY=getISOWeek(today);
+let currentWeek=todayWY.week;
+let currentYear=todayWY.year;
+let mealsCache={};
+let ratingsCache={};
+// Per-card portions state: key = "week_year_typ_pos" => portions
+let portionsState={};
+
+// Card portions (default 4)
+function getPortions(week,year,typ,pos){
+  return portionsState[`${week}_${year}_${typ}_${pos}`]||4;
+}
+function setPortions(week,year,typ,pos,val){
+  portionsState[`${week}_${year}_${typ}_${pos}`]=val;
+}
+
+// ─── LOAD DATA ───────────────────────────────────────────────────────────────
+async function loadMeals(){
+  try{const r=await fetch(API+'?action=getMeals');mealsCache=await r.json();}catch(e){console.warn('meals',e);}
+}
+async function loadRatings(){
+  try{const r=await fetch(API+'?action=getRatings');ratingsCache=await r.json();}catch(e){console.warn('ratings',e);}
+}
+async function init(){
+  await Promise.all([loadMeals(),loadRatings()]);
+  updateBadge();
+  render();
+}
+
+// ─── WEEK SCHEDULE ───────────────────────────────────────────────────────────
+// Base week = current ISO week (shifted forward 2 from previous implementation)
+function getMealsForWeek(week,year){
+  const key=`${week}_${year}`;
+  const saved=mealsCache[key];
+  // Base: current week = schedule index 0
+  const baseWY=getISOWeek(new Date());
+  const baseDate=getWeekStart(baseWY.week,baseWY.year);
+  const thisDate=getWeekStart(week,year);
+  const diffWeeks=Math.round((thisDate-baseDate)/(7*86400000));
+  const schedules=[
+    {big:[0,1],small:[2,3]},
+    {big:[4,5],small:[6,7]},
+    {big:[8,9],small:[10,11]},
+    {big:[12,13],small:[14,15]},
+    {big:[16,17],small:[18,0]},
+  ];
+  const s=schedules[((diffWeeks%5)+5)%5];
+  return{
+    big:[
+      saved&&saved.big&&saved.big[0]?mealPool.find(m=>m.n===saved.big[0])||mealPool[s.big[0]]:mealPool[s.big[0]],
+      saved&&saved.big&&saved.big[1]?mealPool.find(m=>m.n===saved.big[1])||mealPool[s.big[1]]:mealPool[s.big[1]],
+    ],
+    small:[
+      saved&&saved.small&&saved.small[0]?mealPool.find(m=>m.n===saved.small[0])||mealPool[s.small[0]]:mealPool[s.small[0]],
+      saved&&saved.small&&saved.small[1]?mealPool.find(m=>m.n===saved.small[1])||mealPool[s.small[1]]:mealPool[s.small[1]],
+    ]
+  };
+}
+
+// ─── RENDER MATSEDEL ─────────────────────────────────────────────────────────
+function render(){
+  document.getElementById('week-label').textContent=formatWeekLabel(currentWeek,currentYear);
+  const todayWY2=getISOWeek(new Date());
+  const maxW=getISOWeeksInYear(currentYear);
+  const nw=currentWeek===maxW?1:currentWeek+1;
+  const ny=currentWeek===maxW?currentYear+1:currentYear;
+  document.getElementById('btn-current').classList.toggle('active',currentWeek===todayWY2.week&&currentYear===todayWY2.year);
+  document.getElementById('btn-next').classList.toggle('active',currentWeek===nw&&currentYear===ny&&!(currentWeek===todayWY2.week&&currentYear===todayWY2.year));
+  const meals=getMealsForWeek(currentWeek,currentYear);
+  const main=document.getElementById('page-matsedel');
+  main.innerHTML=`
+    <div class="section-block">
+      <p class="section-heading">Stora portioner — matlådor</p>
+      <div class="meal-grid">
+        ${mealCard(meals.big[0],'big',0)}
+        ${mealCard(meals.big[1],'big',1)}
+      </div>
+    </div>
+    <div class="section-block">
+      <p class="section-heading">Kvällsrätter</p>
+      <div class="meal-grid">
+        ${mealCard(meals.small[0],'small',0)}
+        ${mealCard(meals.small[1],'small',1)}
+      </div>
+    </div>`;
+}
+
+function avgRating(name){
+  const rs=ratingsCache[name];
+  if(!rs||!rs.length)return null;
+  return(rs.reduce((a,b)=>a+Number(b.betyg),0)/rs.length).toFixed(1);
+}
+
+function mealCard(m,typ,pos){
+  const avg=avgRating(m.n);
+  const portions=getPortions(currentWeek,currentYear,typ,pos);
+  const safeN=m.n.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  return`<div class="meal-card${typ==='big'?' big':''}" onclick="openModal('${safeN}','${m.i}','${typ==='big'?'Stor sats':'Kvällsrätt'}')">
+    <div class="card-top">
+      <div style="flex:1">
+        <div class="card-name">${m.n}</div>
+        <div class="card-portions" onclick="event.stopPropagation()">
+          <span class="portions-label">Portioner:</span>
+          <div class="portions-ctrl">
+            <button class="portions-btn" onclick="changePortions(event,'${safeN}','${typ}',${pos},-2)">−</button>
+            <span class="portions-num" id="pn_${typ}_${pos}">${portions}</span>
+            <button class="portions-btn" onclick="changePortions(event,'${safeN}','${typ}',${pos},2)">+</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="card-icon">${m.i}</span>
+        ${typ==='big'?'<span class="badge-mat">matlådor</span>':''}
+      </div>
+    </div>
+    <p class="card-desc">${m.d}</p>
+    <div class="tags">${m.t.map(t=>`<span class="tag ${tagClass[t]||''}">${t}</span>`).join('')}</div>
+    ${avg?`<div class="card-rating">★ ${avg} / 10</div>`:''}
+    <p class="card-hint">↗ Visa recept & betygsätt</p>
+    <button class="swap-btn" onclick="event.stopPropagation();openSwap('${safeN}','${typ}',${pos})">⇄ Byt</button>
+  </div>`;
+}
+
+function changePortions(e,name,typ,pos,delta){
+  e.stopPropagation();
+  let cur=getPortions(currentWeek,currentYear,typ,pos);
+  cur=Math.max(2,cur+delta);
+  setPortions(currentWeek,currentYear,typ,pos,cur);
+  const el=document.getElementById(`pn_${typ}_${pos}`);
+  if(el)el.textContent=cur;
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+document.getElementById('prev-week').onclick=()=>{if(currentWeek===1){currentYear--;currentWeek=getISOWeeksInYear(currentYear);}else currentWeek--;render();};
+document.getElementById('next-week').onclick=()=>{if(currentWeek===getISOWeeksInYear(currentYear)){currentWeek=1;currentYear++;}else currentWeek++;render();};
+document.getElementById('btn-current').onclick=()=>{const w=getISOWeek(new Date());currentWeek=w.week;currentYear=w.year;render();};
+document.getElementById('btn-next').onclick=()=>{const w=getISOWeek(new Date());const max=getISOWeeksInYear(w.year);currentWeek=w.week===max?1:w.week+1;currentYear=w.week===max?w.year+1:w.year;render();};
+
+// ─── MODAL ───────────────────────────────────────────────────────────────────
+let baseServings=4,currentServings=4,currentRecipe=null,currentModalName='';
+
+function switchTab(tab){
+  document.querySelectorAll('.modal-tab').forEach((t,i)=>{t.classList.toggle('active',(i===0&&tab==='recept')||(i===1&&tab==='betyg'));});
+  document.getElementById('pane-recept').classList.toggle('active',tab==='recept');
+  document.getElementById('pane-betyg').classList.toggle('active',tab==='betyg');
+}
+
+function openModal(name,icon,meta){
+  const r=recipes[name];
+  currentModalName=name;currentRecipe=r||null;
+  document.getElementById('m-icon').textContent=icon;
+  document.getElementById('m-title').textContent=name;
+  document.getElementById('m-meta').textContent=meta;
+  if(r){baseServings=r.servings;currentServings=r.servings;document.getElementById('srv-count').textContent=currentServings;renderIngredients();renderSteps(r.steps);}
+  else{document.getElementById('m-ingredients').innerHTML='<li class="ing-row"><span class="ing-name-text" style="color:var(--muted);font-style:italic">Recept läggs till snart</span></li>';document.getElementById('m-steps').innerHTML='';}
+  renderRatings(name);selectedRating=0;
+  document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('rating-status').textContent='';
+  switchTab('recept');
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function renderIngredients(){
+  if(!currentRecipe)return;
+  const addedSet=new Set(shopItems.map(i=>i.text.toLowerCase()));
+  document.getElementById('m-ingredients').innerHTML=currentRecipe.ingredients.map(([name,qty])=>{
+    if(qty==='')return`<li class="ing-row section-header"><span>${name}</span></li>`;
+    const scaledQty=scaleQty(qty,baseServings,currentServings);
+    const isAdded=addedSet.has(name.toLowerCase());
+    const chkClass='ing-check'+(isAdded?' checked':'');
+    const chkMark=isAdded?'✓':'';
+    return`<li class="ing-row" onclick="toggleIngCheck(this,'${name.replace(/'/g,"\\'")}','${scaledQty.replace(/'/g,"\\'")}')">
+      <div class="ing-left">
+        <div class="${chkClass}">${chkMark}</div>
+        <span class="ing-name-text">${name}</span>
+      </div>
+      <span class="ing-qty">${scaledQty}</span>
+    </li>`;
+  }).join('');
+}
+
+function toggleIngCheck(row,name,qty){
+  const check=row.querySelector('.ing-check');
+  const already=check.classList.contains('checked');
+  if(already){
+    check.classList.remove('checked');check.textContent='';
+    shopItems=shopItems.filter(i=>i.text.toLowerCase()!==name.toLowerCase());
+    saveShop();
+  }else{
+    check.classList.add('checked');check.textContent='✓';
+    addToShop(name,qty);
+  }
+}
+
+function scaleQty(qty,base,target){
+  if(base===target)return qty;
+  const f=target/base;
+  return qty.replace(/(\d+[,.]?\d*)/g,m=>{
+    const n=parseFloat(m.replace(',','.'))*f;
+    const r=Math.round(n*4)/4;
+    return r===Math.floor(r)?r.toString():r.toFixed(1).replace('.',',');
+  });
+}
+function renderSteps(steps){document.getElementById('m-steps').innerHTML=steps.map((s,i)=>`<li><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('');}
+function closeModal(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('modal-close').onclick=closeModal;
+document.getElementById('overlay').onclick=e=>{if(e.target===document.getElementById('overlay'))closeModal();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeSwap();}});
+document.getElementById('srv-up').onclick=()=>{currentServings+=2;document.getElementById('srv-count').textContent=currentServings;renderIngredients();};
+document.getElementById('srv-down').onclick=()=>{if(currentServings>2){currentServings-=2;document.getElementById('srv-count').textContent=currentServings;renderIngredients();}};
+
+// ─── RATING ──────────────────────────────────────────────────────────────────
+let selectedRating=0;
+const starsRow=document.getElementById('stars-row');
+for(let i=1;i<=10;i++){const b=document.createElement('button');b.className='star-btn';b.textContent=i;b.onclick=()=>{selectedRating=i;document.querySelectorAll('.star-btn').forEach((btn,idx)=>btn.classList.toggle('sel',idx<i));};starsRow.appendChild(b);}
+
+function renderRatings(name){
+  const rs=ratingsCache[name];
+  const el=document.getElementById('ratings-list');
+  if(!rs||!rs.length){el.innerHTML='<p class="no-ratings">Inga betyg ännu</p>';return;}
+  el.innerHTML='<div class="ratings-list">'+rs.map(r=>`<div class="rating-entry"><div><div style="font-weight:500">${r.namn}</div><div class="rating-meta">${r.tidpunkt}</div></div><div class="rating-score">${r.betyg}/10</div></div>`).join('')+'</div>';
+}
+async function submitRating(){
+  const namn=document.getElementById('rating-name').value.trim();
+  if(!namn){document.getElementById('rating-status').textContent='Ange ditt namn.';return;}
+  if(!selectedRating){document.getElementById('rating-status').textContent='Välj ett betyg 1–10.';return;}
+  const btn=document.getElementById('submit-rating');btn.disabled=true;
+  document.getElementById('rating-status').textContent='Sparar...';
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({action:'saveRating',ratt:currentModalName,namn,betyg:selectedRating})});
+    if(!ratingsCache[currentModalName])ratingsCache[currentModalName]=[];
+    ratingsCache[currentModalName].push({namn,betyg:selectedRating,tidpunkt:new Date().toLocaleString('sv-SE')});
+    renderRatings(currentModalName);
+    document.getElementById('rating-status').textContent='✓ Betyg sparat!';
+    selectedRating=0;document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('sel'));
+    render();
+  }catch(e){document.getElementById('rating-status').textContent='Kunde inte spara, försök igen.';}
+  btn.disabled=false;
+}
+
+// ─── SWAP ────────────────────────────────────────────────────────────────────
+let swapTarget={name:'',typ:'',pos:0};
+function openSwap(name,typ,pos){swapTarget={name,typ,pos};document.getElementById('swap-current-name').textContent=name;document.getElementById('swap-search').value='';document.getElementById('ai-loading').style.display='none';filterSwap();document.getElementById('swap-overlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeSwap(){document.getElementById('swap-overlay').classList.remove('open');if(!document.getElementById('overlay').classList.contains('open'))document.body.style.overflow='';}
+document.getElementById('swap-overlay').onclick=e=>{if(e.target===document.getElementById('swap-overlay'))closeSwap();};
+function filterSwap(){
+  const q=document.getElementById('swap-search').value.toLowerCase().trim();
+  const current=swapTarget.name;
+  let options=mealPool.filter(m=>m.n!==current);
+  if(q){options=options.filter(m=>{const r=recipes[m.n];const ingText=r?r.ingredients.map(i=>i[0]).join(' ').toLowerCase():'';return m.n.toLowerCase().includes(q)||m.d.toLowerCase().includes(q)||ingText.includes(q);});}
+  const el=document.getElementById('swap-options');
+  if(!options.length){el.innerHTML='<p style="font-size:13px;color:var(--muted);font-style:italic">Inga träffar</p>';return;}
+  el.innerHTML=options.slice(0,7).map(m=>`<button class="swap-option" onclick="applySwap('${m.n.replace(/'/g,"\\'")}')"><div class="swap-option-name">${m.i} ${m.n}</div><div class="swap-option-desc">${m.d}</div></button>`).join('');
+}
+function randomSwap(){const options=mealPool.filter(m=>m.n!==swapTarget.name);applySwap(options[Math.floor(Math.random()*options.length)].n);}
+async function applySwap(newName){
+  const{typ,pos}=swapTarget;const key=`${currentWeek}_${currentYear}`;
+  if(!mealsCache[key])mealsCache[key]={big:[null,null],small:[null,null]};
+  mealsCache[key][typ][pos]=newName;
+  try{await fetch(API,{method:'POST',body:JSON.stringify({action:'saveMeal',vecka:currentWeek,ar:currentYear,typ,position:pos,ratt:newName})});}catch(e){console.warn('save meal',e);}
+  closeSwap();render();
+}
+async function aiSwap(){
+  const loading=document.getElementById('ai-loading');loading.style.display='block';loading.textContent='Genererar recept med AI...';
+  const currentM=mealPool.find(m=>m.n===swapTarget.name);const tags=currentM?currentM.t.join(', '):'';
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Du är en kock som skapar svenska matrecept. Svara ENBART med JSON, inget annat. Ingen markdown, inga backticks.',messages:[{role:'user',content:`Skapa ett nytt matrecept som liknar kategorin: ${tags}. Recept som ska bytas ut: ${swapTarget.name}. Svara med JSON: {"name":"Receptnamnet","desc":"Kort beskrivning max 15 ord","icon":"🍽️","ingredients":[["ingrediens","mängd"]],"steps":["steg 1","steg 2"]}`}]})});
+    const data=await resp.json();
+    const recipe=JSON.parse(data.content[0].text.trim());
+    const newMeal={n:recipe.name,d:recipe.desc,t:currentM?currentM.t:['grön'],i:recipe.icon||'🍽️'};
+    mealPool.push(newMeal);recipes[recipe.name]={servings:4,ingredients:recipe.ingredients,steps:recipe.steps};
+    loading.style.display='none';applySwap(recipe.name);
+  }catch(e){loading.textContent='Kunde inte generera recept just nu.';console.error(e);}
+}
+
+// ─── START ───────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
