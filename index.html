@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matplanering</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F7F4EF;--ink:#1C1917;--muted:#6B6560;--green:#2D6A4F;--green-light:#D8F3DC;--blue:#1D5A8A;--blue-light:#DBE9F4;--amber:#92400E;--amber-light:#FEF3C7;--purple:#4C3A8B;--purple-light:#EDE9FE;--red:#9B2335;--red-light:#FDE8EB;--border:rgba(28,25,23,0.1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--cream);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh}
+
+header{background:var(--ink);color:var(--cream);padding:1.75rem 2rem 1.25rem;position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(181,84,26,0.15)}
+header::after{content:'';position:absolute;bottom:-50px;left:30%;width:150px;height:150px;border-radius:50%;background:rgba(45,106,79,0.12)}
+.header-inner{max-width:900px;margin:0 auto;position:relative;z-index:1}
+header h1{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,4vw,2.2rem);font-weight:600;letter-spacing:-0.02em;line-height:1.2;margin-bottom:0.2rem}
+.header-sub{color:rgba(247,244,239,0.5);font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase}
+
+/* TOP TABS */
+.top-tabs{background:var(--ink);border-bottom:1px solid rgba(255,255,255,0.1);position:sticky;top:0;z-index:30}
+.top-tabs-inner{max-width:900px;margin:0 auto;display:flex}
+.top-tab{padding:0.6rem 1.25rem;font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(247,244,239,0.5);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;position:relative}
+.top-tab:hover{color:rgba(247,244,239,0.85)}
+.top-tab.active{color:var(--cream);border-bottom-color:var(--cream)}
+.top-tab .badge{background:#B5541A;color:white;font-size:9px;border-radius:99px;padding:1px 6px;margin-left:5px;font-weight:500}
+
+/* WEEK NAV */
+.week-nav{background:var(--cream);border-bottom:1px solid var(--border);padding:0.55rem 1.25rem;position:sticky;top:41px;z-index:20}
+.week-nav-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.nav-week-label{font-size:0.85rem;font-weight:400;min-width:150px;color:var(--ink)}
+.nav-btn{padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);transition:all 0.15s}
+.nav-btn:hover{border-color:var(--ink);color:var(--ink)}
+.nav-btn.active{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.nav-arrow{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;color:var(--muted)}
+.nav-arrow:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.nav-sep{width:1px;height:18px;background:var(--border);margin:0 2px}
+
+/* MAIN */
+main{max-width:900px;margin:0 auto;padding:1.5rem 1.25rem 5rem}
+.page{display:none;animation:fadeIn 0.2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.section-heading{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:0 0 0.65rem;display:flex;align-items:center;gap:8px}
+.section-heading::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-block{margin-bottom:1.6rem}
+.meal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:10px}
+
+/* CARDS */
+.meal-card{background:white;border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;cursor:pointer;transition:box-shadow 0.15s,transform 0.15s;position:relative}
+.meal-card:hover{box-shadow:0 6px 24px rgba(28,25,23,0.09);transform:translateY(-1px)}
+.meal-card.big{border-top:3px solid var(--green)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
+.card-name{font-family:'Playfair Display',serif;font-size:0.98rem;font-weight:400;line-height:1.3;margin-bottom:4px}
+.card-desc{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:7px}
+.card-icon{font-size:20px;line-height:1;flex-shrink:0;margin-left:8px}
+.card-hint{font-size:10px;color:var(--muted);opacity:0.55;margin-top:6px}
+.card-rating{font-size:11px;margin-top:4px;color:var(--amber);font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:3px}
+.tag{font-size:10px;padding:2px 7px;border-radius:99px;letter-spacing:0.03em;font-weight:500}
+.tag-grön{background:var(--green-light);color:var(--green)}
+.tag-fisk{background:var(--blue-light);color:var(--blue)}
+.tag-kött{background:var(--red-light);color:var(--red)}
+.tag-matlåda{background:#D1FAE5;color:#065F46}
+.tag-potatis{background:var(--amber-light);color:var(--amber)}
+.tag-baljväxter{background:var(--purple-light);color:var(--purple)}
+
+/* PORTIONS COUNTER ON CARD */
+.card-portions{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.portions-label{font-size:10px;color:var(--muted);letter-spacing:0.04em}
+.portions-ctrl{display:flex;align-items:center;gap:4px}
+.portions-btn{width:20px;height:20px;border-radius:50%;border:1px solid var(--border);background:var(--cream);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;line-height:1;color:var(--ink);transition:all 0.12s;flex-shrink:0}
+.portions-btn:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.portions-num{font-size:13px;font-weight:500;min-width:16px;text-align:center}
+
+.swap-btn{position:absolute;bottom:9px;right:9px;background:var(--cream);border:1px solid var(--border);border-radius:99px;font-size:10px;padding:2px 8px;cursor:pointer;color:var(--muted);transition:all 0.15s;z-index:2;font-family:'DM Sans',sans-serif}
+.swap-btn:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.badge-mat{font-size:9px;background:var(--green-light);color:var(--green);border-radius:99px;padding:2px 7px;font-weight:500;white-space:nowrap;margin-top:4px;display:inline-block}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(28,25,23,0.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex;animation:fadeOverlay 0.2s ease}
+@keyframes fadeOverlay{from{opacity:0}to{opacity:1}}
+.modal{background:var(--cream);border-radius:16px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;animation:slideUp 0.22s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-header{background:var(--ink);color:var(--cream);padding:1.3rem 1.4rem 1rem;border-radius:16px 16px 0 0;position:relative}
+.modal-header .m-icon{font-size:1.7rem;margin-bottom:0.35rem;display:block}
+.modal-header h2{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:400;line-height:1.3}
+.modal-header p{font-size:11px;color:rgba(247,244,239,0.45);margin-top:2px;letter-spacing:0.04em;text-transform:uppercase}
+.modal-close{position:absolute;top:0.9rem;right:0.9rem;background:rgba(255,255,255,0.1);border:none;color:var(--cream);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background 0.15s}
+.modal-close:hover{background:rgba(255,255,255,0.2)}
+.modal-body{padding:1.3rem}
+.modal-tabs{display:flex;gap:5px;margin-bottom:1.1rem;border-bottom:1px solid var(--border);padding-bottom:0.65rem}
+.modal-tab{padding:4px 12px;border-radius:99px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--muted);transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.modal-tab.active{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.modal-pane{display:none}.modal-pane.active{display:block}
+
+.recipe-section{margin-bottom:1.1rem}
+.recipe-section h3{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.55rem;display:flex;align-items:center;gap:8px}
+.recipe-section h3::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Ingredient rows in modal */
+.ingredients{list-style:none;display:flex;flex-direction:column;gap:0}
+.ing-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 8px;border-radius:7px;cursor:pointer;transition:background 0.12s;border-bottom:1px solid var(--border);gap:8px}
+.ing-row:last-child{border-bottom:none}
+.ing-row:hover{background:rgba(28,25,23,0.04)}
+.ing-row.section-header{cursor:default;padding-top:10px;border-bottom:none}
+.ing-row.section-header:hover{background:transparent}
+.ing-row.section-header span{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+.ing-left{display:flex;align-items:center;gap:8px;flex:1}
+.ing-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s;background:white}
+.ing-check.checked{background:var(--green);border-color:var(--green);color:white}
+.ing-name-text{color:var(--ink)}
+.ing-qty{color:var(--muted);font-size:12px;white-space:nowrap}
+.add-to-list-btn{font-size:10px;padding:2px 8px;border-radius:99px;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--muted);transition:all 0.12s;white-space:nowrap;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.add-to-list-btn:hover,.add-to-list-btn.added{background:var(--green);color:white;border-color:var(--green)}
+.add-to-list-btn.added{cursor:default}
+
+.steps{list-style:none;display:flex;flex-direction:column;gap:8px}
+.steps li{display:flex;gap:8px;font-size:13px;line-height:1.6}
+.step-num{min-width:19px;height:19px;border-radius:50%;background:var(--ink);color:var(--cream);font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;margin-top:2px;flex-shrink:0}
+.servings-row{display:flex;align-items:center;gap:7px;margin-bottom:0.9rem;font-size:12px;color:var(--muted)}
+.servings-row button{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:white;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;color:var(--ink)}
+.servings-row button:hover{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.servings-count{font-size:14px;font-weight:500;color:var(--ink);min-width:16px;text-align:center}
+
+/* RATING */
+.rating-section{margin-bottom:0.9rem}
+.rating-name-input{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;margin-bottom:0.75rem}
+.rating-name-input:focus{border-color:var(--ink)}
+.stars-row{display:flex;gap:4px;margin-bottom:0.9rem;flex-wrap:wrap}
+.star-btn{width:34px;height:34px;border-radius:7px;border:1px solid var(--border);background:white;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.12s;color:var(--muted);font-family:'DM Sans',sans-serif}
+.star-btn:hover,.star-btn.sel{background:var(--amber);color:white;border-color:var(--amber)}
+.submit-rating{padding:7px 18px;background:var(--ink);color:var(--cream);border:none;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;transition:opacity 0.15s}
+.submit-rating:hover{opacity:0.85}
+.submit-rating:disabled{opacity:0.4;cursor:not-allowed}
+.ratings-list{display:flex;flex-direction:column;gap:7px;margin-top:0.9rem}
+.rating-entry{display:flex;justify-content:space-between;align-items:center;padding:7px 11px;background:white;border-radius:8px;border:1px solid var(--border);font-size:13px}
+.rating-score{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--amber)}
+.rating-meta{font-size:11px;color:var(--muted);margin-top:1px}
+.no-ratings{font-size:13px;color:var(--muted);font-style:italic}
+.rating-status{font-size:12px;color:var(--green);margin-top:5px;min-height:15px}
+
+/* SWAP MODAL */
+.swap-modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(28,25,23,0.6);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem}
+.swap-modal-overlay.open{display:flex;animation:fadeOverlay 0.2s ease}
+.swap-modal{background:var(--cream);border-radius:16px;width:100%;max-width:460px;max-height:82vh;overflow-y:auto;animation:slideUp 0.22s ease}
+.swap-modal-header{background:var(--ink);color:var(--cream);padding:1.15rem 1.3rem;border-radius:16px 16px 0 0;position:relative}
+.swap-modal-header h2{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:400}
+.swap-modal-header p{font-size:11px;color:rgba(247,244,239,0.45);margin-top:2px}
+.swap-modal-close{position:absolute;top:0.9rem;right:0.9rem;background:rgba(255,255,255,0.1);border:none;color:var(--cream);width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.swap-modal-body{padding:1.1rem}
+.swap-search{width:100%;padding:7px 11px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;margin-bottom:0.65rem}
+.swap-search:focus{border-color:var(--ink)}
+.swap-options{display:flex;flex-direction:column;gap:5px}
+.swap-option{padding:9px 12px;background:white;border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all 0.15s;text-align:left;font-family:'DM Sans',sans-serif;width:100%}
+.swap-option:hover{border-color:var(--ink);box-shadow:0 2px 8px rgba(28,25,23,0.07)}
+.swap-option-name{font-family:'Playfair Display',serif;font-size:0.9rem;margin-bottom:2px}
+.swap-option-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.swap-divider{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin:0.65rem 0 0.45rem;display:flex;align-items:center;gap:8px}
+.swap-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.swap-random-btn{width:100%;padding:8px;background:var(--cream);border:1px dashed var(--border);border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);transition:all 0.15s;margin-bottom:0.4rem}
+.swap-random-btn:hover{border-color:var(--ink);color:var(--ink)}
+.swap-ai-btn{width:100%;padding:8px;background:var(--ink);color:var(--cream);border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;transition:opacity 0.15s}
+.swap-ai-btn:hover{opacity:0.85}
+.ai-loading{text-align:center;padding:0.9rem;font-size:12px;color:var(--muted)}
+
+/* SHOPPING LIST PAGE */
+.shop-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:8px}
+.shop-header-row h2{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:400}
+.shop-clear-btn{font-size:12px;padding:5px 12px;border-radius:99px;border:1px solid var(--border);background:transparent;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.shop-clear-btn:hover{background:var(--red-light);color:var(--red);border-color:var(--red)}
+
+.shop-add-row{display:flex;gap:7px;margin-bottom:1.5rem;flex-wrap:wrap}
+.shop-add-input{flex:1;min-width:160px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none}
+.shop-add-input:focus{border-color:var(--ink)}
+.shop-cat-select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;color:var(--ink);cursor:pointer}
+.shop-add-btn{padding:8px 16px;background:var(--ink);color:var(--cream);border:none;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;transition:opacity 0.15s;white-space:nowrap}
+.shop-add-btn:hover{opacity:0.85}
+
+.shop-category{margin-bottom:1.25rem}
+.shop-cat-heading{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem;display:flex;align-items:center;gap:8px}
+.shop-cat-heading::after{content:'';flex:1;height:1px;background:var(--border)}
+.shop-items{display:flex;flex-direction:column;gap:2px}
+.shop-item{display:flex;align-items:center;gap:10px;padding:8px 11px;background:white;border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;user-select:none}
+.shop-item:hover{background:#fafafa}
+.shop-item.done{opacity:0.45}
+.shop-item.done .shop-item-text{text-decoration:line-through;color:var(--muted)}
+.shop-item-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s;background:white}
+.shop-item.done .shop-item-check{background:var(--green);border-color:var(--green);color:white}
+.shop-item-text{font-size:13px;flex:1}
+.shop-item-qty{font-size:11px;color:var(--muted)}
+.shop-item-del{width:20px;height:20px;border-radius:50%;border:none;background:transparent;cursor:pointer;color:var(--muted);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.12s;flex-shrink:0;line-height:1}
+.shop-item-del:hover{background:var(--red-light);color:var(--red)}
+.shop-empty{font-size:13px;color:var(--muted);font-style:italic;padding:1rem 0}
+
+/* ADD RECIPE MODAL */
+.add-recipe-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(28,25,23,0.6);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem}
+.add-recipe-overlay.open{display:flex;animation:fadeOverlay 0.2s ease}
+.add-recipe-modal{background:var(--cream);border-radius:16px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;animation:slideUp 0.22s ease}
+.add-recipe-header{background:var(--ink);color:var(--cream);padding:1.15rem 1.3rem;border-radius:16px 16px 0 0;position:relative}
+.add-recipe-header h2{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:400}
+.add-recipe-header p{font-size:11px;color:rgba(247,244,239,0.45);margin-top:2px}
+.add-recipe-close{position:absolute;top:0.9rem;right:0.9rem;background:rgba(255,255,255,0.1);border:none;color:var(--cream);width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.add-recipe-body{padding:1.2rem;display:flex;flex-direction:column;gap:1rem}
+.ar-field{display:flex;flex-direction:column;gap:5px}
+.ar-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+.ar-input{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;width:100%}
+.ar-input:focus{border-color:var(--ink)}
+.ar-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ing-list{display:flex;flex-direction:column;gap:5px;margin-bottom:5px}
+.ing-entry{display:flex;gap:6px;align-items:center}
+.ing-entry input{padding:6px 10px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;background:white;outline:none}
+.ing-entry input:focus{border-color:var(--ink)}
+.ing-entry .ing-name-f{flex:2}
+.ing-entry .ing-qty-f{flex:1}
+.ing-del-btn{width:22px;height:22px;border-radius:50%;border:none;background:transparent;cursor:pointer;color:var(--muted);font-size:15px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center}
+.ing-del-btn:hover{background:var(--red-light);color:var(--red)}
+.ar-add-ing{font-size:12px;padding:5px 12px;border-radius:99px;border:1px dashed var(--border);background:transparent;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;align-self:flex-start;transition:all 0.15s}
+.ar-add-ing:hover{border-color:var(--ink);color:var(--ink)}
+.tag-grid{display:flex;flex-wrap:wrap;gap:6px}
+.tag-toggle{padding:5px 12px;border-radius:99px;border:1px solid var(--border);background:white;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);transition:all 0.15s}
+.tag-toggle.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.cuisine-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:white;outline:none;color:var(--ink);cursor:pointer;width:100%}
+.ar-save-btn{padding:9px 20px;background:var(--ink);color:var(--cream);border:none;border-radius:9px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;transition:opacity 0.15s;align-self:flex-end}
+.ar-save-btn:hover{opacity:0.85}
+.ar-status{font-size:12px;color:var(--green);min-height:16px}
+
+
+@media(max-width:500px){.meal-grid{grid-template-columns:1fr}header{padding:1.25rem 1rem}.modal-body{padding:1rem}.shop-add-row{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-sub">Gemensam matplanering</div>
+    <h1>Veckans mat</h1>
+  </div>
+</header>
+
+<div class="top-tabs">
+  <div class="top-tabs-inner">
+    <button class="top-tab active" onclick="showPage('matsedel',this)">Matsedel</button>
+    <button class="top-tab" id="shop-tab" onclick="showPage('inkop',this)">Inköpslista <span class="badge" id="shop-badge" style="display:none">0</span></button>
+    <button class="top-tab" onclick="openAddRecipe()">+ Recept</button>
+  </div>
+</div>
+
+<nav class="week-nav" id="week-nav">
+  <div class="week-nav-inner">
+    <button class="nav-arrow" id="prev-week">←</button>
+    <span class="nav-week-label" id="week-label"></span>
+    <button class="nav-arrow" id="next-week">→</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn active" id="btn-current">Denna vecka</button>
+    <button class="nav-btn" id="btn-next">Nästa vecka</button>
+  </div>
+</nav>
+
+<main>
+  <div class="page active" id="page-matsedel"></div>
+  <div class="page" id="page-inkop">
+    <div class="shop-header-row">
+      <h2>Inköpslista</h2>
+      <button class="shop-clear-btn" onclick="clearDone()">Rensa klara</button>
+    </div>
+    <div class="shop-add-row">
+      <input class="shop-add-input" id="shop-input" placeholder="Lägg till produkt..." onkeydown="if(event.key==='Enter')addManual()">
+      <select class="shop-cat-select" id="shop-cat-select">
+        <option value="Frukt & grönsaker">🥦 Frukt & grönt</option>
+        <option value="Kött & fisk">🥩 Kött & fisk</option>
+        <option value="Mejeri">🥛 Mejeri</option>
+        <option value="Skafferi">🫙 Skafferi</option>
+        <option value="Snacks">🍫 Snacks</option>
+        <option value="Hushåll">🧻 Hushåll</option>
+        <option value="Övrigt">📦 Övrigt</option>
+      </select>
+      <button class="shop-add-btn" onclick="addManual()">+ Lägg till</button>
+    </div>
+    <div id="shop-list"></div>
+  </div>
+</main>
+
+<!-- Add Recipe Modal -->
+<div class="add-recipe-overlay" id="add-recipe-overlay">
+  <div class="add-recipe-modal">
+    <div class="add-recipe-header">
+      <button class="add-recipe-close" onclick="closeAddRecipe()">✕</button>
+      <h2>Lägg till recept</h2>
+      <p>Receptet sparas och visas direkt i byttjänsten</p>
+    </div>
+    <div class="add-recipe-body">
+
+      <div class="ar-field">
+        <label class="ar-label">Receptnamn</label>
+        <input class="ar-input" id="ar-name" placeholder="T.ex. Pasta e fagioli">
+      </div>
+
+      <div class="ar-row">
+        <div class="ar-field">
+          <label class="ar-label">Emoji / ikon</label>
+          <input class="ar-input" id="ar-icon" placeholder="🍲" maxlength="2">
+        </div>
+        <div class="ar-field">
+          <label class="ar-label">Portioner</label>
+          <input class="ar-input" id="ar-servings" type="number" min="1" max="20" value="4">
+        </div>
+      </div>
+
+      <div class="ar-field">
+        <label class="ar-label">Beskrivning (kort)</label>
+        <input class="ar-input" id="ar-desc" placeholder="En mening om rätten...">
+      </div>
+
+      <div class="ar-field">
+        <label class="ar-label">Kök</label>
+        <select class="cuisine-select" id="ar-cuisine">
+          <option value="">— Välj kök —</option>
+          <option>Svenskt</option><option>Nordiskt</option><option>Italienskt</option>
+          <option>Franskt</option><option>Spanskt</option><option>Grekiskt</option>
+          <option>Mediterrant</option><option>Mellanöstern</option><option>Turkiskt</option>
+          <option>Marockanskt</option><option>Nordafrikanskt</option><option>Etiopiskt</option>
+          <option>Västafrikanskt</option><option>Indiskt</option><option>Thailändskt</option>
+          <option>Japanskt</option><option>Kinesiskt</option><option>Koreanskt</option>
+          <option>Vietnamesiskt</option><option>Mexikanskt</option><option>Latinamerikanskt</option>
+          <option>Peruanskt</option><option>Amerikanskt</option><option>Brittiskt</option>
+          <option>Tyskt</option><option>Österrikiskt</option><option>Polskt</option>
+          <option>Ungerskt</option><option>Östeuropeiskt</option><option>Ryskt</option>
+          <option>Iranskt</option><option>Libanskt</option>
+        </select>
+      </div>
+
+      <div class="ar-field">
+        <label class="ar-label">Taggar</label>
+        <div class="tag-grid">
+          <button class="tag-toggle" data-tag="kött" onclick="toggleArTag(this)">🥩 kött</button>
+          <button class="tag-toggle" data-tag="fisk" onclick="toggleArTag(this)">🐟 fisk</button>
+          <button class="tag-toggle" data-tag="grön" onclick="toggleArTag(this)">🥦 grön</button>
+          <button class="tag-toggle" data-tag="baljväxter" onclick="toggleArTag(this)">🫘 baljväxter</button>
+          <button class="tag-toggle" data-tag="potatis" onclick="toggleArTag(this)">🥔 potatis</button>
+          <button class="tag-toggle" data-tag="matlåda" onclick="toggleArTag(this)">📦 matlåda</button>
+        </div>
+      </div>
+
+      <div class="ar-field">
+        <label class="ar-label">Ingredienser</label>
+        <div class="ing-list" id="ar-ing-list"></div>
+        <button class="ar-add-ing" onclick="addArIng()">+ Ingrediens</button>
+      </div>
+
+      <div class="ar-field">
+        <label class="ar-label">Tillagningssteg</label>
+        <div class="ing-list" id="ar-step-list"></div>
+        <button class="ar-add-ing" onclick="addArStep()">+ Steg</button>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span class="ar-status" id="ar-status"></span>
+        <button class="ar-save-btn" onclick="saveArRecipe()">Spara recept</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <button class="modal-close" id="modal-close">✕</button>
+      <span class="m-icon" id="m-icon"></span>
+      <h2 id="m-title"></h2>
+      <p id="m-meta"></p>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="modal-tab active" onclick="switchTab('recept')">Recept</button>
+        <button class="modal-tab" onclick="switchTab('betyg')">Betygsätt</button>
+      </div>
+      <div class="modal-pane active" id="pane-recept">
+        <div class="servings-row">
+          <button id="srv-down">−</button>
+          <span class="servings-count" id="srv-count">4</span>
+          <span>portioner</span>
+          <button id="srv-up">+</button>
+        </div>
+        <div class="recipe-section">
+          <h3>Ingredienser — klicka för att lägga till inköpslistan</h3>
+          <ul class="ingredients" id="m-ingredients"></ul>
+        </div>
+        <div class="recipe-section">
+          <h3>Tillagning</h3>
+          <ol class="steps" id="m-steps"></ol>
+        </div>
+      </div>
+      <div class="modal-pane" id="pane-betyg">
+        <div class="rating-section">
+          <input class="rating-name-input" id="rating-name" placeholder="Ditt namn (t.ex. Adam)" maxlength="30">
+          <div class="stars-row" id="stars-row"></div>
+          <button class="submit-rating" id="submit-rating" onclick="submitRating()">Spara betyg</button>
+          <div class="rating-status" id="rating-status"></div>
+        </div>
+        <div class="recipe-section" style="margin-top:1rem">
+          <h3>Tidigare betyg</h3>
+          <div id="ratings-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Swap modal -->
+<div class="swap-modal-overlay" id="swap-overlay">
+  <div class="swap-modal">
+    <div class="swap-modal-header">
+      <button class="swap-modal-close" onclick="closeSwap()">✕</button>
+      <h2>Byt rätt</h2>
+      <p id="swap-current-name"></p>
+    </div>
+    <div class="swap-modal-body">
+      <input class="swap-search" id="swap-search" placeholder="Sök på ingrediens, t.ex. tomat, lax..." oninput="filterSwap()">
+      <button class="swap-random-btn" onclick="randomSwap()">🎲 Slumpa en liknande rätt</button>
+      <div class="swap-divider">eller välj</div>
+      <div class="swap-options" id="swap-options"></div>
+      <div class="swap-divider" style="margin-top:0.75rem">ai-förslag</div>
+      <button class="swap-ai-btn" onclick="aiSwap()">✨ Generera nytt recept med AI</button>
+      <div id="ai-loading" class="ai-loading" style="display:none">Genererar recept...</div>
+    </div>
+  </div>
+</div>
+
+<footer>Gjord med ❤ för er båda</footer>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbzGUFy6_e5vsmWbw3RYQDsdPKWVzLW_cXvqntnx4-iPV0lQ0F_RNRosmlpYgBoaG0fr/exec';
+
+// ─── SHOPPING LIST STATE ─────────────────────────────────────────────────────
+// {id, text, qty, category, done}
+let shopItems = JSON.parse(localStorage.getItem('shopItems')||'[]');
+
+function saveShop(){localStorage.setItem('shopItems',JSON.stringify(shopItems));updateBadge();renderShopList()}
+
+const CATEGORIES=['Frukt & grönsaker','Kött & fisk','Mejeri','Skafferi','Snacks','Hushåll','Övrigt'];
+const CAT_ICONS={'Frukt & grönsaker':'🥦','Kött & fisk':'🥩','Mejeri':'🥛','Skafferi':'🫙','Snacks':'🍫','Hushåll':'🧻','Övrigt':'📦'};
+
+// Ingredient → category mapping (keyword based)
+function guessCategory(name){
+  const n=name.toLowerCase();
+  const fruit=['äpple','päron','banan','citron','lime','apelsin','mango','bär','vindruv','avocado','tomat','körsbär'];
+  const veg=['lök','vitlök','ingefära','morot','selleri','potatis','purjo','zucchini','paprika','spenat','kål','broccoli','aubergine','gurka','sallad','persilja','koriander','dill','basilika','mynta','gräslök','rosmarin','timjan','lins','kikärt','böna','ärta','majs','couscous','bulgur'];
+  const meat=['kött','fäns','fläsk','kyckling','lax','torsk','fisk','räk','tonfisk','ansjovis'];
+  const dairy=['mjölk','grädde','smör','ost','yoghurt','crème','keso','fetaost','halloumi','ägg'];
+  const pantry=['olja','vinäger','socker','salt','peppar','mjöl','ris','pasta','buljong','tomat','konserv','burk','nudel','soja','senap','honung','ströbröd','lasagne','tortilla','kokosmjölk','chipot','harissa','garam','kummin','koriander mald','spiskummin','gurkmeja','paprikapulver','oregano','kanel','muskotnöt','chili','curry','kaviar','inlagd'];
+  if(fruit.some(k=>n.includes(k)))return'Frukt & grönsaker';
+  if(veg.some(k=>n.includes(k)))return'Frukt & grönsaker';
+  if(meat.some(k=>n.includes(k)))return'Kött & fisk';
+  if(dairy.some(k=>n.includes(k)))return'Mejeri';
+  if(pantry.some(k=>n.includes(k)))return'Skafferi';
+  return'Övrigt';
+}
+
+function addToShop(name,qty){
+  const cat=guessCategory(name);
+  const existing=shopItems.find(i=>i.text.toLowerCase()===name.toLowerCase());
+  if(existing){existing.done=false;}
+  else{shopItems.push({id:Date.now()+'_'+Math.random(),text:name,qty:qty||'',category:cat,done:false});}
+  saveShop();
+}
+
+function addManual(){
+  const input=document.getElementById('shop-input');
+  const cat=document.getElementById('shop-cat-select').value;
+  const text=input.value.trim();
+  if(!text)return;
+  shopItems.push({id:Date.now()+'_'+Math.random(),text,qty:'',category:cat,done:false});
+  input.value='';
+  saveShop();
+}
+
+function toggleShopItem(id){
+  const item=shopItems.find(i=>i.id===id);
+  if(item)item.done=!item.done;
+  saveShop();
+}
+
+function deleteShopItem(id){
+  shopItems=shopItems.filter(i=>i.id!==id);
+  saveShop();
+}
+
+function clearDone(){
+  shopItems=shopItems.filter(i=>!i.done);
+  saveShop();
+}
+
+function updateBadge(){
+  const count=shopItems.filter(i=>!i.done).length;
+  const badge=document.getElementById('shop-badge');
+  badge.textContent=count;
+  badge.style.display=count>0?'inline':'none';
+}
+
+function renderShopList(){
+  const el=document.getElementById('shop-list');
+  if(!el)return;
+  const active=shopItems.filter(i=>!i.done);
+  const done=shopItems.filter(i=>i.done);
+  const all=[...active,...done];
+  if(!all.length){el.innerHTML='<p class="shop-empty">Inköpslistan är tom</p>';return;}
+  let html='';
+  CATEGORIES.forEach(cat=>{
+    const items=all.filter(i=>i.category===cat);
+    if(!items.length)return;
+    html+=`<div class="shop-category"><div class="shop-cat-heading">${CAT_ICONS[cat]} ${cat}</div><div class="shop-items">`;
+    items.forEach(item=>{
+      html+=`<div class="shop-item${item.done?' done':''}" onclick="toggleShopItem('${item.id}')">
+        <div class="shop-item-check">${item.done?'✓':''}</div>
+        <span class="shop-item-text">${item.text}</span>
+        ${item.qty?`<span class="shop-item-qty">${item.qty}</span>`:''}
+        <button class="shop-item-del" onclick="event.stopPropagation();deleteShopItem('${item.id}')">×</button>
+      </div>`;
+    });
+    html+='</div></div>';
+  });
+  el.innerHTML=html;
+}
+
+// ─── PAGE SWITCHING ──────────────────────────────────────────────────────────
+function showPage(p,el){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.top-tab').forEach(e=>e.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('week-nav').style.display=p==='matsedel'?'block':'none';
+  if(p==='inkop')renderShopList();
+}
+
+// ─── MEALS DATA ──────────────────────────────────────────────────────────────
+const mealPool=[
+  // ── Befintliga ──
+  {n:"Röd linschili med kokosmjölk",d:"Indisk-inspirerad linschili med tomat, ingefära, spiskummin och koriander. Serveras med ris.",t:["baljväxter","matlåda","grön"],k:"Indiskt",i:"🍲"},
+  {n:"Ugnsbakad lax med klyftpotatis och örter",d:"Lax med citrondressing, klyftpotatis med rosmarin och fetaost, grönkålssallad.",t:["fisk","potatis","matlåda"],k:"Nordiskt",i:"🐟"},
+  {n:"Klassisk lasagne med köttfärssås och bechamel",d:"Lasagne med mustigt köttfärs, krämig bechamelsås och gratinerad osttopping.",t:["kött"],k:"Italienskt",i:"🫕"},
+  {n:"Vegetariska tacos",d:"Tacos med svarta bönor, majs, avocado, salsa och jalapeño.",t:["baljväxter","grön"],k:"Mexikanskt",i:"🌮"},
+  {n:"Svarta bönor i chipotle och tomatbas",d:"Mexikansk-inspirerad böngryta med rökt smak. Serveras med ris och crème fraîche.",t:["baljväxter","matlåda","grön"],k:"Mexikanskt",i:"🌶️"},
+  {n:"Torskrygg med rotmossmos och skirat smör",d:"Husmanskost med mosad rotselleri och potatis, kapris och dill.",t:["fisk","potatis","matlåda"],k:"Svenskt",i:"🐟"},
+  {n:"Halloumi med klyftpotatis och grönsalsa",d:"Stekt halloumi med ugnsrostad potatis och fräsch salsa verde.",t:["potatis","grön"],k:"Mediterrant",i:"🧀"},
+  {n:"Thai grön curry med tofu och grönsaker",d:"Kokosmjölksbaserad curry med zucchini, paprika och sockerärtor.",t:["grön","baljväxter"],k:"Thailändskt",i:"🍜"},
+  {n:"Gul linssoppa med kummin och citron",d:"Nordafrikansk-inspirerad soppa med massor av kryddor. Serveras med knäckebröd.",t:["baljväxter","matlåda","grön"],k:"Nordafrikanskt",i:"🥣"},
+  {n:"Köttfärssås med pasta och rotgrönsaker",d:"Bolognese med morötter, selleri och tomat. Serveras med pasta och riven ost.",t:["kött","matlåda"],k:"Italienskt",i:"🍝"},
+  {n:"Potatissoppa med brynt smör och gräslök",d:"Krämig klassiker med bakad potatis, purjolök och grädde.",t:["potatis","grön"],k:"Svenskt",i:"🥣"},
+  {n:"Marockansk kikärtsgryta med morötter",d:"Tagine-inspirerad gryta med kanel, spiskummin och torkad frukt. Serveras med couscous.",t:["baljväxter","matlåda","grön"],k:"Marockanskt",i:"🫕"},
+  {n:"Senapslax med dillpotatis och spenat",d:"Ugnslagad lax med senapsmarinad, kokt dillpotatis och spenatsallad med citron.",t:["fisk","potatis","matlåda"],k:"Nordiskt",i:"🐟"},
+  {n:"Klyftpotatis med tzatziki och grönsaker",d:"Ugnsrostad klyftpotatis med hemgjord tzatziki, tabbouleh och olivröra.",t:["potatis","grön"],k:"Grekiskt",i:"🥔"},
+  {n:"Pytt i panna",d:"Klassisk husmanskost med potatis, rotsaker och ägg. Serveras med inlagd rödbeta.",t:["kött","potatis"],k:"Svenskt",i:"🍳"},
+  {n:"Röda kidney-bönor i tomatchili",d:"Kryddig bönchili med ancho, paprika och lök. Serveras med ris och avocado.",t:["baljväxter","matlåda","grön"],k:"Mexikanskt",i:"🌶️"},
+  {n:"Fiskgratäng med klyftpotatis och dillsås",d:"Ugnslagad vit fisk med ostskorpa, klyftpotatis och krämig dillsås.",t:["fisk","potatis","matlåda"],k:"Svenskt",i:"🐟"},
+  {n:"Dal makhani (smörlinser)",d:"Krämiga svarta linser från Punjab med lång koktid och smör. Serveras med ris.",t:["baljväxter","grön"],k:"Indiskt",i:"🍲"},
+  {n:"Grönsakspaj med fetaost och potatisbotten",d:"Paj med potatisbotten fylld med fetaost, spenat och soltorkad tomat.",t:["potatis","grön"],k:"Mediterrant",i:"🥧"},
+  // ── Nya ──
+  // Italienskt
+  {n:"Pasta cacio e pepe",d:"Romersk klassiker med pecorino, svartpeppar och pasta. Enkel men teknisk.",t:["matlåda"],k:"Italienskt",i:"🍝"},
+  {n:"Pasta all'arrabbiata",d:"Pennepasta i het tomatbaserad sås med vitlök, chili och basilika.",t:["matlåda","grön"],k:"Italienskt",i:"🍝"},
+  {n:"Risotto med svamp och parmesan",d:"Krämig arborio-risotto med porcini, färsk svamp och riven parmesan.",t:["matlåda","grön"],k:"Italienskt",i:"🍚"},
+  {n:"Gnocchi med gorgonzolasås",d:"Potatisgnokki i krämig gorgonzolasås med valnötter och salvia.",t:["potatis"],k:"Italienskt",i:"🥔"},
+  {n:"Minestrone",d:"Robust italiensk grönsakssoppa med bönor, pasta och parmesan.",t:["baljväxter","matlåda","grön"],k:"Italienskt",i:"🥣"},
+  {n:"Pasta e fagioli",d:"Tjock pasta-och-bönsoppa från södra Italien med rosmarin och tomat.",t:["baljväxter","matlåda"],k:"Italienskt",i:"🍲"},
+  {n:"Pollo al limone",d:"Kyckling i vitvin och citronssås med kapris och örter. Serveras med pasta.",t:["kött"],k:"Italienskt",i:"🍋"},
+  {n:"Saltimbocca",d:"Kalvschnitzel med prosciutto och salvia i vit-vinsås. Serveras med mos.",t:["kött"],k:"Italienskt",i:"🥩"},
+  // Mexikanskt
+  {n:"Chicken fajitas",d:"Strimlade kycklinglår med paprika, lök, lime och guacamole i varma tortillas.",t:["kött"],k:"Mexikanskt",i:"🌮"},
+  {n:"Enchiladas med röd sås",d:"Tortillas fyllda med ost och bönor, täckta i röd chilesås och gratinerade.",t:["baljväxter"],k:"Mexikanskt",i:"🌯"},
+  {n:"Pozole rojo",d:"Mexikansk hominygryta med fläsk, röd chile och oregano. Toppas med kål och limejuice.",t:["kött","matlåda"],k:"Mexikanskt",i:"🍲"},
+  {n:"Huevos rancheros",d:"Ägg på stekta tortillas med ranch-salsa, avocado och crème fraîche.",t:["grön"],k:"Mexikanskt",i:"🍳"},
+  // Indiskt
+  {n:"Palak paneer",d:"Indisk spenat- och ostgryta med ingefära, vitlök och garam masala. Serveras med naan.",t:["grön"],k:"Indiskt",i:"🟢"},
+  {n:"Chana masala",d:"Kikärtsgryta i tomatbas kryddad med amchur, koriander och garam masala.",t:["baljväxter","matlåda","grön"],k:"Indiskt",i:"🍲"},
+  {n:"Butter chicken",d:"Krämig tomatbaserad kycklingsås med smör, grädde och kryddor. Serveras med ris.",t:["kött","matlåda"],k:"Indiskt",i:"🍛"},
+  {n:"Aloo gobi",d:"Potatis och blomkål wokad med gurkmeja, spiskummin och koriander.",t:["potatis","grön"],k:"Indiskt",i:"🥔"},
+  {n:"Saag aloo",d:"Spenat och potatis i vitlöks- och ingefärssås. Enkelt och vegetariskt.",t:["potatis","grön"],k:"Indiskt",i:"🥬"},
+  {n:"Lamb rogan josh",d:"Lamm i djupt kryddad kashmirsås med hel kanel och kardemumma.",t:["kött","matlåda"],k:"Indiskt",i:"🍛"},
+  {n:"Korma med kyckling",d:"Mild, nötkreämig kycklingcurry med mandel, safran och yoghurt.",t:["kött"],k:"Indiskt",i:"🍛"},
+  // Thai
+  {n:"Pad thai med räkor",d:"Klassisk wokad risnudel med räkor, tamarind, jordnötter och böngroddar.",t:["fisk"],k:"Thailändskt",i:"🍜"},
+  {n:"Thai röd curry med kyckling",d:"Kokosmjölkscurry med kyckling, bambuskott och thaibasilikum.",t:["kött","matlåda"],k:"Thailändskt",i:"🍛"},
+  {n:"Tom yum soppa",d:"Skarp thailändsk soppa med citrongräs, galangal, svamp och räkor.",t:["fisk"],k:"Thailändskt",i:"🥣"},
+  {n:"Mango sticky rice",d:"Glutinöst ris med kokosmjölk och färsk mango. Klassisk thai-dessert som förrätt/middag.",t:["grön"],k:"Thailändskt",i:"🥭"},
+  // Kinesiskt
+  {n:"Mapo tofu",d:"Sichuansisk tofu i het köttfärssås med doubanjiang och hua jiao-peppar.",t:["baljväxter"],k:"Kinesiskt",i:"🌶️"},
+  {n:"Kung pao kyckling",d:"Wokad kyckling med jordnötter, chili och Sichuanpeppar i sötsyrlig sås.",t:["kött"],k:"Kinesiskt",i:"🍗"},
+  {n:"Wonton-soppa",d:"Kinesisk soppa med fläsk-och-räkfyllda wontons i klar buljongsås med ingefära.",t:["kött","fisk"],k:"Kinesiskt",i:"🥟"},
+  {n:"Stekt ris med ägg och grönsaker",d:"Wok-stekt dag-gammalt ris med ägg, majs, ärtor och soja.",t:["grön","matlåda"],k:"Kinesiskt",i:"🍳"},
+  {n:"Hoisin-fläsk med nudlar",d:"Slow-cooked fläsk i hoisinsås serverat med nudlar och inlagd gurka.",t:["kött","matlåda"],k:"Kinesiskt",i:"🍜"},
+  // Japanskt
+  {n:"Gyudon (nötköttsris)",d:"Japansk klassiker med tunt skivat nötkött och lök i dashi-baserad soja-mirinsås.",t:["kött","matlåda"],k:"Japanskt",i:"🍚"},
+  {n:"Tonkotsu ramen",d:"Rik fläskbensbuljong med ramen-nudlar, mjukkokat ägg och nori.",t:["kött"],k:"Japanskt",i:"🍜"},
+  {n:"Miso-soppa med tofu och wakame",d:"Japansk misosoppa med silkestofu, wakame och salladslök.",t:["baljväxter","grön"],k:"Japanskt",i:"🥣"},
+  {n:"Teriyaki-lax",d:"Laxfilé glasad med teriyakisås, serveras med ångat ris och edamame.",t:["fisk","matlåda"],k:"Japanskt",i:"🐟"},
+  {n:"Oyakodon",d:"Kyckling och ägg sjudna i dashi och soja, serveras på ris.",t:["kött","matlåda"],k:"Japanskt",i:"🍳"},
+  {n:"Katsu curry",d:"Panerad kycklingschnitzel med japansk curry-sås och ris.",t:["kött"],k:"Japanskt",i:"🍛"},
+  // Koreanskt
+  {n:"Bibimbap",d:"Koreansk risbowl med wokade grönsaker, köttfärs, ägg och gochujang.",t:["kött","grön"],k:"Koreanskt",i:"🍚"},
+  {n:"Kimchi-jjigae",d:"Koreansk fermenterad kimchi-gryta med tofu och fläsk.",t:["kött","baljväxter"],k:"Koreanskt",i:"🌶️"},
+  {n:"Bulgogi",d:"Koreansk marinerat nötkött med päron, ingefära och soja. Serveras med ris.",t:["kött"],k:"Koreanskt",i:"🥩"},
+  {n:"Japchae",d:"Koreanska glasnudlar wokade med spenat, morot, lök och nötkött.",t:["kött","grön"],k:"Koreanskt",i:"🍜"},
+  // Vietnamesiskt
+  {n:"Pho bo",d:"Vietnamesisk oxbenssoppa med risnudlar, stjärnanis och färska örter.",t:["kött"],k:"Vietnamesiskt",i:"🍜"},
+  {n:"Bún bò Huế",d:"Kryddstark vietnamesisk soppa med fläsk, citrongräs och räkpasta.",t:["kött","fisk"],k:"Vietnamesiskt",i:"🍲"},
+  {n:"Goi cuon (vårrullar)",d:"Färska rispappersrullar med räkor, nudlar, mynta och jordnötssås.",t:["fisk","grön"],k:"Vietnamesiskt",i:"🥢"},
+  // Medelhav/Mellanöstern
+  {n:"Shakshuka",d:"Nordafrikanska ägg pocherade i kryddig tomatpaprikasås med fetaost.",t:["grön"],k:"Mellanöstern",i:"🍳"},
+  {n:"Falafel med hummus och pitabröd",d:"Friterade kikärtsbollar med hummus, tahini och inlagda grönsaker.",t:["baljväxter","grön"],k:"Mellanöstern",i:"🧆"},
+  {n:"Köfte med bulgur och yoghurtsås",d:"Turkiska lammköttbullar i tomatbuljong med bulgur och yoghurt.",t:["kött"],k:"Turkiskt",i:"🥩"},
+  {n:"Hummus med ugnsrostade kikärter",d:"Hemgjord hummus med tahini och citronsaft, toppat med krispiga kikärter.",t:["baljväxter","grön"],k:"Mellanöstern",i:"🫘"},
+  {n:"Mujaddara",d:"Libanesisk linssläng med karamelliserad lök och bulgur. Enkel och mättande.",t:["baljväxter","matlåda","grön"],k:"Libanskt",i:"🍲"},
+  {n:"Khoresh ghormeh sabzi",d:"Iransk örträgg med njurbönor, lammkött och torkad lime.",t:["kött","baljväxter","matlåda"],k:"Iranskt",i:"🫕"},
+  {n:"Moussaka",d:"Grekisk ugnsgratäng med aubergine, lammfärs och bechamelsås.",t:["kött"],k:"Grekiskt",i:"🫕"},
+  {n:"Spanakopita",d:"Grekisk spenat-och-fetaostpaj i frasig filodeg.",t:["grön"],k:"Grekiskt",i:"🥧"},
+  // Nordafrikanskt
+  {n:"Harira",d:"Marockansk tomatbaserad ramadan-soppa med lamm, linser och kikärter.",t:["kött","baljväxter","matlåda"],k:"Marockanskt",i:"🥣"},
+  {n:"Shakshuka med merguez",d:"Egyptisk klassiker med starka kryddskorvar, ägg och tomatpaprikasås.",t:["kött"],k:"Nordafrikanskt",i:"🍳"},
+  {n:"Chermoula-lax med couscous",d:"Nordafrikansk örtmarinad med koriander, spiskummin och citron på laxfilé.",t:["fisk","matlåda"],k:"Nordafrikanskt",i:"🐟"},
+  // Afrikanskt
+  {n:"Jollof rice med kyckling",d:"Västafrikansk festrätt med ris kokt i tomat-paprikasås och ugnsrostad kyckling.",t:["kött","matlåda"],k:"Västafrikanskt",i:"🍚"},
+  {n:"Injera med misir wot",d:"Etiopisk surdegsbröd med kryddig röd linsgryta (berbere).",t:["baljväxter","grön"],k:"Etiopiskt",i:"🍞"},
+  // Latinamerikanskt
+  {n:"Gallo pinto",d:"Costa Ricansk ris-och-bönsauté med koriander och Lizano-sås.",t:["baljväxter","matlåda","grön"],k:"Latinamerikanskt",i:"🍚"},
+  {n:"Caldo de res",d:"Mexikansk oxsvansbuljong med majskolv, zucchini och koriander.",t:["kött"],k:"Mexikanskt",i:"🥣"},
+  {n:"Aji de gallina",d:"Peruansk kyckling i gul chilesås med valnötter och ris.",t:["kött","matlåda"],k:"Peruanskt",i:"🍛"},
+  // Franskt
+  {n:"Coq au vin",d:"Franskt klassiskt kycklinggryta med rödvin, bacon, lök och champinjoner.",t:["kött","matlåda"],k:"Franskt",i:"🍷"},
+  {n:"Ratatouille",d:"Provensalsk grönsaksgratäng med aubergine, zucchini, tomat och örter.",t:["grön"],k:"Franskt",i:"🫕"},
+  {n:"Bouillabaisse",d:"Provensalsk fisksoppa med saffran, fänkål och rouille.",t:["fisk"],k:"Franskt",i:"🥣"},
+  {n:"Quiche Lorraine",d:"Klassisk paj med bacon, gruyère och äggstanning.",t:["kött"],k:"Franskt",i:"🥧"},
+  {n:"Boeuf bourguignon",d:"Burgundisk oxgryta med rödvin, lök, morot och champinjoner.",t:["kött","matlåda"],k:"Franskt",i:"🍷"},
+  // Spanskt
+  {n:"Paella valenciana",d:"Klassisk spansk risrätt med kyckling, kanin, gröna bönor och saffran.",t:["kött"],k:"Spanskt",i:"🥘"},
+  {n:"Patatas bravas",d:"Friterad potatis med kryddig tomat-aioli. Tapasrätt.",t:["potatis","grön"],k:"Spanskt",i:"🥔"},
+  {n:"Tortilla española",d:"Spansk äggkaka med potatis och lök.",t:["potatis","grön"],k:"Spanskt",i:"🍳"},
+  {n:"Gazpacho",d:"Kall spansk tomatbaserad soppa med paprika, gurka och vitlök.",t:["grön"],k:"Spanskt",i:"🥣"},
+  // Nordiskt/Skandinaviskt
+  {n:"Janssons frestelse",d:"Klassisk svensk ugnsrätt med potatisgratäng, ansjovis och grädde.",t:["fisk","potatis"],k:"Svenskt",i:"🥔"},
+  {n:"Ärtsoppa med fläsk",d:"Traditionell svensk torsdagssoppa med gula ärter och rimmat fläsk.",t:["baljväxter","kött","matlåda"],k:"Svenskt",i:"🟡"},
+  {n:"Gravadlax med hovmästarsås",d:"Hemgravad lax med dill, senap och honung. Serveras med råragsknäcke.",t:["fisk"],k:"Nordiskt",i:"🐟"},
+  {n:"Biff Lindström",d:"Svenska köttbullar med rödbeta och kapris, serveras med potatis och gräddsås.",t:["kött","potatis"],k:"Svenskt",i:"🥩"},
+  {n:"Fiskbullar i dillsås",d:"Svenska fiskbullar i krämig dillsås, serveras med kokt potatis.",t:["fisk","potatis"],k:"Svenskt",i:"🐟"},
+  {n:"Raggmunk med fläsk och lingon",d:"Potatisplättar stekta i smör med stekt fläsk och lingonsylt.",t:["kött","potatis"],k:"Svenskt",i:"🥞"},
+  {n:"Smörgåstårta",d:"Svensk matfesttårta med räkor, ägg, gurka och majonnäs på vitt bröd.",t:["fisk"],k:"Svenskt",i:"🎂"},
+  // Tyskt/Österrikiskt
+  {n:"Schnitzel med potatissallad",d:"Wienerschnitzel av kalv med citron, panering och varm tysk potatissallad.",t:["kött","potatis"],k:"Österrikiskt",i:"🥩"},
+  {n:"Linsgryta med korv",d:"Tysk linssoppa med rökt korv, selleri och persilja.",t:["baljväxter","kött","matlåda"],k:"Tyskt",i:"🍲"},
+  {n:"Flammkuchen",d:"Alsatisk tunn pizzalikande täckta med crème fraîche, lök och bacon.",t:["kött"],k:"Tyskt",i:"🍕"},
+  // Brittiskt/Irländskt
+  {n:"Shepherd's pie",d:"Brittisk köttgratäng med lammfärs och mospotatislock.",t:["kött","potatis","matlåda"],k:"Brittiskt",i:"🥧"},
+  {n:"Fish and chips",d:"Friterad torsk i ölpanering med hemgjorda chips och mushy peas.",t:["fisk","potatis"],k:"Brittiskt",i:"🐟"},
+  {n:"Irish stew",d:"Irländsk lammgryta med rotfrukt, purjolök och persilja.",t:["kött","potatis","matlåda"],k:"Irländskt",i:"🫕"},
+  // Amerikanskt
+  {n:"BBQ pulled pork med coleslaw",d:"Slow-cooked fläskkarré med rökt BBQ-sås och krispig coleslaw i brioche.",t:["kött"],k:"Amerikanskt",i:"🥪"},
+  {n:"Clam chowder",d:"Krämig New England-musselssoppa med bacon, potatis och timjan.",t:["fisk","potatis"],k:"Amerikanskt",i:"🥣"},
+  {n:"Mac and cheese",d:"Bakad macaroni med fyra sorters ost och ströbrödstopping.",t:["matlåda"],k:"Amerikanskt",i:"🧀"},
+  // Östeuropeiskt
+  {n:"Borscht",d:"Ukrainsk rödbetssoppa med kål, potatis och gräddfil.",t:["grön","potatis","matlåda"],k:"Östeuropeiskt",i:"🥣"},
+  {n:"Pierogi med potatis och ost",d:"Polska kokta degknyten fyllda med mosad potatis, ost och lök.",t:["potatis"],k:"Polskt",i:"🥟"},
+  {n:"Goulash",d:"Ungersk köttgryta med paprika, lök och kardemumma. Serveras med äggnudlar.",t:["kött","matlåda"],k:"Ungerskt",i:"🫕"},
+  {n:"Blini med lax och crème fraîche",d:"Ryska jästplättar med gravad lax, crème fraîche och rödlök.",t:["fisk"],k:"Ryskt",i:"🥞"},
+];
+
+const recipes={
+  "Röd linschili med kokosmjölk":{servings:6,ingredients:[["Röda linser","400 g"],["Kokosmjölk","400 ml"],["Krossade tomater","400 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Färsk ingefära","2 msk riven"],["Spiskummin, mald","2 tsk"],["Koriander, mald","1 tsk"],["Garam masala","1 tsk"],["Chiliflakes","½ tsk"],["Grönsaksbuljongtärning","1 st"],["Rapsolja","2 msk"],["Salt & peppar","efter smak"],["Färsk koriander","till servering"],["Ris (basmati)","till servering"]],steps:["Hacka lök och vitlök fint. Riv ingefäran.","Fräs lök i olja på medelvärme ca 5 min. Tillsätt vitlök och ingefära, fräs 1 min.","Rör ner spiskummin, koriander, garam masala och chiliflakes. Fräs 30 sekunder.","Skölj linserna. Tillsätt linser, krossade tomater och kokosmjölk. Rör om.","Lös buljong i 3 dl vatten och häll i grytan. Koka upp.","Sänk värmen, lägg på lock och sjud 25–30 min tills linserna är mjuka. Rör om ibland.","Smaka av med salt, peppar och ev. mer chili. Servera med ris och färsk koriander."]},
+  "Ugnsbakad lax med klyftpotatis och örter":{servings:4,ingredients:[["Laxfilé","600 g"],["Fast potatis","800 g"],["Fetaost","100 g"],["Citron","1 st"],["Vitlök","3 klyftor"],["Färsk rosmarin","3 kvistar"],["Olivolja","3 msk"],["Grönkål","100 g"],["Dijonsenap","1 msk"],["Honung","1 tsk"],["Salt & peppar","efter smak"]],steps:["Värm ugnen till 200°C. Skär potatisen i klyftor och blanda med olivolja, hackad vitlök, rosmarin, salt och peppar.","Bred ut potatisen på en plåt och rosta 25 min.","Vispa ihop citronjuice, senap, honung och 1 msk olivolja till en dressing.","Lägg laxen på plåten bland potatisen, pensla med dressingen. Smula över fetaost.","Baka ytterligare 12–15 min tills laxen är genomvarm.","Massera grönkålen med lite olivolja och citronsaft. Servera allt tillsammans."]},
+  "Klassisk lasagne med köttfärssås och bechamel":{servings:6,ingredients:[["Nötfärs","500 g"],["Krossade tomater","800 g"],["Gul lök","2 st"],["Vitlök","3 klyftor"],["Tomatpuré","2 msk"],["Torrt rödvin","1 dl"],["Oregano, torkad","2 tsk"],["Lasagneplattor","12–15 st"],["Riven ost","150 g"],["— Bechamel —",""],["Smör","50 g"],["Vetemjöl","4 msk"],["Mjölk","6 dl"],["Muskotnöt, riven","½ tsk"],["Salt & peppar","efter smak"]],steps:["Hacka lök och vitlök. Fräs i olja tills mjuk, ca 5 min. Tillsätt köttfärs och bryn.","Rör ner tomatpuré, oregano och rödvin. Koka 1 min. Tillsätt krossade tomater.","Sjud köttfärssåsen på låg värme 20–25 min. Smaka av med salt och peppar.","Bechamel: Smält smör i en kastrull. Rör ner mjöl och fräs 1 min. Häll i mjölk lite i taget under konstant vispning.","Koka bechamelen under omrörning tills tjock, ca 5 min. Krydda med muskotnöt, salt och peppar.","Värm ugnen till 200°C. Varva köttfärssås, lasagneplattor och bechamel i en form. Avsluta med bechamel och riven ost.","Grädda 35–40 min tills gyllenbrun. Låt vila 10 min före servering."]},
+  "Vegetariska tacos":{servings:4,ingredients:[["Svarta bönor (burk)","2 x 400 g"],["Majs (burk)","1 x 200 g"],["Mjuka tortillas","8–10 st"],["Avocado","2 st"],["Körsbärstomater","200 g"],["Rödlök","1 st"],["Jalapeño (inlagd)","efter smak"],["Lime","1 st"],["Spiskummin","1 tsk"],["Paprikapulver, rökt","1 tsk"],["Olivolja","1 msk"],["Koriander","½ kruka"],["Crème fraîche","till servering"],["Salt","efter smak"]],steps:["Skölj och avrina bönor och majs. Fräs med spiskummin och paprikapulver i olivolja 3–4 min. Smaka av med salt.","Tärna avocado, halvera tomaterna, finhacka rödlök och koriander. Blanda med limejuice.","Värm tortillorna torrt i stekpanna eller i ugn (200°C, 3 min).","Lägg upp alla tillbehör och låt var och en bygga sina egna tacos."]},
+  "Svarta bönor i chipotle och tomatbas":{servings:6,ingredients:[["Svarta bönor (burk)","3 x 400 g"],["Krossade tomater","400 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Chipotlepasta","2 msk"],["Spiskummin","2 tsk"],["Oregano","1 tsk"],["Grönsaksbuljongtärning","1 st"],["Rapsolja","2 msk"],["Lime","1 st"],["Crème fraîche","till servering"],["Ris","till servering"],["Salt & peppar","efter smak"]],steps:["Hacka lök och vitlök, fräs i olja ca 5 min.","Tillsätt chipotlepasta, spiskummin och oregano. Fräs 1 min.","Rör ner krossade tomater och avrinnade bönor. Häll i 2 dl vatten med buljong.","Sjud 20 min tills såsen tjocknat. Smaka av med limejuice, salt och peppar.","Servera med ris och en klick crème fraîche."]},
+  "Torskrygg med rotmossmos och skirat smör":{servings:4,ingredients:[["Torskrygg","600 g"],["Rotselleri","400 g"],["Fast potatis","400 g"],["Smör","100 g"],["Mjölk eller grädde","1 dl"],["Kapris","2 msk"],["Dill","½ kruka"],["Citron","1 st"],["Salt & vitpeppar","efter smak"]],steps:["Skala och tärna rotselleri och potatis. Koka mjuka i saltat vatten, ca 20 min.","Häll av vattnet. Mosa med smör (50 g) och mjölk. Smaka av med salt och vitpeppar.","Salta torskryggen. Stek i smör på medelvärme 3–4 min per sida tills genomvarm.","Skira resterande smör i en liten kastrull tills gyllengult och nötaktigt, ca 3 min.","Servera torsken på moset. Toppa med skirat smör, kapris, dill och citronsaft."]},
+  "Halloumi med klyftpotatis och grönsalsa":{servings:4,ingredients:[["Halloumi","400 g"],["Fast potatis","700 g"],["Olivolja","3 msk"],["— Salsa verde —",""],["Persilja","1 kruka"],["Basilika","½ kruka"],["Kapris","2 msk"],["Vitlök","1 klyfta"],["Dijonsenap","1 tsk"],["Citronsaft","2 msk"],["Olivolja (salsa)","3 msk"],["Salt & peppar","efter smak"]],steps:["Skär potatis i klyftor, blanda med olivolja, salt och peppar. Rosta i 200°C ca 30 min.","Mixa persilja, basilika, kapris, vitlök, senap och citronsaft till en grov salsa. Tillsätt olivolja och smaka av.","Skär halloumin i skivor, ca 1 cm tjocka. Stek i torr het panna 2 min per sida tills gyllenbrun.","Servera halloumi och potatis med riklig salsa verde."]},
+  "Thai grön curry med tofu och grönsaker":{servings:4,ingredients:[["Fast tofu","400 g"],["Kokosmjölk","400 ml"],["Grön currypasta","2–3 msk"],["Zucchini","1 st"],["Röd paprika","1 st"],["Sockerärtor","150 g"],["Babyspenat","60 g"],["Fisksås eller sojasås","2 msk"],["Palmsocker","1 tsk"],["Lime","1 st"],["Kokosolja","1 msk"],["Jasminris","till servering"]],steps:["Pressa tofu torr, tärna och stek gyllenbrun i kokosolja ca 5 min. Ta ur pannan.","Fräs currypastan i samma panna 1 min. Häll i kokosmjölken och koka upp.","Tillsätt zucchini och paprika, sjud 5 min. Lägg i sockerärtor och tofu.","Smaka av med fisksås, socker och lime. Rör ner spenaten sist.","Servera med jasminris och basilika."]},
+  "Gul linssoppa med kummin och citron":{servings:6,ingredients:[["Gula linser","400 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Morötter","2 st"],["Spiskummin","2 tsk"],["Gurkmeja","1 tsk"],["Koriander, mald","1 tsk"],["Cayennepeppar","¼ tsk"],["Grönsaksbuljongtärning","2 st"],["Citron","1 st"],["Olivolja","2 msk"],["Salt & peppar","efter smak"],["Knäckebröd","till servering"]],steps:["Hacka lök, vitlök och morötter. Fräs i olivolja ca 5 min.","Tillsätt spiskummin, gurkmeja, koriander och cayenne. Fräs 1 min.","Skölj linserna och tillsätt med 1,5 liter vatten och buljongtärningar. Koka upp.","Sjud under lock 25 min tills linser och morötter är mjuka.","Mixa slät med stavmixer. Smaka av med citronjuice, salt och peppar.","Servera med knäckebröd och en ringla olivolja."]},
+  "Köttfärssås med pasta och rotgrönsaker":{servings:6,ingredients:[["Nötfärs","500 g"],["Krossade tomater","800 g"],["Gul lök","2 st"],["Morot","2 st"],["Selleri","2 stjälkar"],["Vitlök","3 klyftor"],["Tomatpuré","2 msk"],["Rödvin","1 dl"],["Oregano & basilika","1 tsk vardera"],["Olivolja","2 msk"],["Pasta","till servering"],["Riven parmesan","till servering"],["Salt & peppar","efter smak"]],steps:["Finhacka lök, morot, selleri och vitlök. Fräs mjukt i olivolja ca 8 min.","Höj värmen, tillsätt köttfärs och bryn väl. Rör ner tomatpuré.","Häll i rödvin, låt avdunsta 2 min. Tillsätt krossade tomater och örter.","Sjud på låg värme 30–40 min. Smaka av med salt och peppar.","Koka pasta enligt förpackning. Servera med riklig sås och riven parmesan."]},
+  "Potatissoppa med brynt smör och gräslök":{servings:4,ingredients:[["Mjölig potatis","800 g"],["Purjolök","2 st"],["Smör","75 g"],["Grädde","1 dl"],["Grönsaksbuljongtärning","2 st"],["Vitlök","2 klyftor"],["Gräslök","½ kruka"],["Salt & vitpeppar","efter smak"]],steps:["Skala och tärna potatis. Skiva purjolök. Fräs purjolök i 25 g smör 3 min.","Tillsätt potatis, vitlök och 1,2 liter vatten med buljongtärningar. Koka 20 min.","Mixa slät. Rör ner grädde, smaka av med salt och vitpeppar.","Bryn resterande smör i en liten kastrull tills gyllengult och nötaktigt.","Servera soppan med brynt smör ringat ovanpå och klippt gräslök."]},
+  "Marockansk kikärtsgryta med morötter":{servings:6,ingredients:[["Kikärter (burk)","2 x 400 g"],["Morötter","4 st"],["Krossade tomater","400 g"],["Gul lök","2 st"],["Vitlök","3 klyftor"],["Torkade aprikoser","100 g"],["Spiskummin","2 tsk"],["Kanel","1 tsk"],["Koriander, mald","1 tsk"],["Ingefära, mald","½ tsk"],["Harissa","1 tsk"],["Grönsaksbuljongtärning","1 st"],["Couscous","till servering"],["Färsk koriander","till servering"]],steps:["Skär morötter i bitar, hacka lök och vitlök. Fräs i olja 5 min.","Tillsätt alla kryddor och harissa, fräs 1 min.","Häll i tomater, kikärter, tärnade aprikoser och 3 dl vatten med buljong.","Sjud under lock 30 min tills morötter är mjuka. Smaka av.","Koka couscous enligt förpackning. Servera grytan med couscous och koriander."]},
+  "Senapslax med dillpotatis och spenat":{servings:4,ingredients:[["Laxfilé","600 g"],["Fast potatis","700 g"],["Babyspenat","100 g"],["Dijonsenap","3 msk"],["Honung","1 msk"],["Citron","1 st"],["Dill","1 kruka"],["Smör","20 g"],["Olivolja","2 msk"],["Salt & peppar","efter smak"]],steps:["Koka potatis i saltat vatten tills mjuk. Häll av och vänd med smör och hackad dill.","Blanda senap, honung, citronskal och lite citronsaft till marinad.","Lägg laxen i ugnsform, bred senapsmarinaden ovanpå. Baka i 200°C ca 12–14 min.","Fräs spenaten snabbt i lite olivolja tills precis ihopfalld.","Servera laxen med dillpotatis och spenat."]},
+  "Klyftpotatis med tzatziki och grönsaker":{servings:4,ingredients:[["Fast potatis","800 g"],["Olivolja","3 msk"],["Paprikapulver","1 tsk"],["— Tzatziki —",""],["Turkisk yoghurt (10%)","300 g"],["Gurka","½ st"],["Vitlök","1–2 klyftor"],["Olivolja (tzatziki)","1 msk"],["Dill eller mynta","1 msk hackad"],["Citronsaft","1 msk"],["— Tabbouleh —",""],["Bulgur","150 g"],["Tomater","2 st"],["Persilja","1 kruka"],["Citron","1 st"],["Salt & peppar","efter smak"]],steps:["Klyfta potatisen, blanda med olivolja, paprika, salt och peppar. Rosta i 220°C ca 30 min.","Riv gurkan grovt, salta och krama ur vätska. Blanda med yoghurt, pressad vitlök, dill, citronsaft och olja. Kyl.","Koka bulgur enligt förpackning, svalna. Blanda med tärnade tomater, persilja och citronjuice.","Servera klyftpotatis med tzatziki och tabbouleh."]},
+  "Pytt i panna":{servings:4,ingredients:[["Kokt potatis","600 g"],["Kokt kött (nöt/fläsk)","300 g"],["Gul lök","2 st"],["Rödbeta (inlagd)","1 burk"],["Smör","50 g"],["Ägg","4 st"],["Salt & peppar","efter smak"],["Persilja","till servering"]],steps:["Tärna potatis och kött i lika stora bitar, ca 1 cm. Hacka löken.","Stek lök i smör tills mjuk. Tillsätt potatis och stek gyllenbrun utan att röra för mycket, ca 8 min.","Tillsätt köttet och fräs ytterligare 5 min. Smaka av med salt och peppar.","Stek äggen separat, gärna med rinnig gula.","Servera pytten toppat med ett ägg och rödbeta på sidan. Strö över persilja."]},
+  "Röda kidney-bönor i tomatchili":{servings:6,ingredients:[["Kidney-bönor (burk)","3 x 400 g"],["Krossade tomater","800 g"],["Gul lök","2 st"],["Röd paprika","2 st"],["Vitlök","4 klyftor"],["Chipotle/ancho-chili","2 tsk"],["Spiskummin","2 tsk"],["Paprikapulver, rökt","1 tsk"],["Grönsaksbuljongtärning","1 st"],["Avocado","2 st"],["Lime","1 st"],["Ris","till servering"],["Salt & peppar","efter smak"]],steps:["Hacka lök, paprika och vitlök. Fräs i olja ca 6 min.","Tillsätt chili, spiskummin och paprikapulver. Fräs 1 min.","Häll i tomater, bönor och buljong löst i 1 dl vatten. Koka upp.","Sjud 25 min tills såsen tjocknat. Smaka av med salt, peppar och limejuice.","Servera med ris och skivad avocado."]},
+  "Fiskgratäng med klyftpotatis och dillsås":{servings:4,ingredients:[["Vit fisk (torsk/sej)","600 g"],["Fast potatis","700 g"],["Riven ost","100 g"],["Ströbröd","3 msk"],["Olivolja","2 msk"],["— Dillsås —",""],["Smör","25 g"],["Vetemjöl","2 msk"],["Mjölk","3 dl"],["Dill","1 kruka"],["Citron","½ st"],["Salt & vitpeppar","efter smak"]],steps:["Klyfta potatisen, rosta med olivolja, salt och peppar i 200°C ca 25 min.","Lägg fisken i ugnsform, salta och peppra. Blanda ost med ströbröd och strö över.","Grädda fisken i 200°C ca 15 min tills ostskorpan är gyllenbrun.","Dillsås: smält smör, rör ner mjöl. Vispa in mjölk lite i taget. Koka tjock. Rör ner hackad dill och citronsaft.","Servera gratängen med klyftpotatis och dillsåsen."]},
+  "Dal makhani (smörlinser)":{servings:6,ingredients:[["Svarta linser (urad dal)","300 g"],["Kidney-bönor (burk)","1 x 400 g"],["Smör","75 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Färsk ingefära","2 msk riven"],["Krossade tomater","400 g"],["Grädde","1 dl"],["Garam masala","1 tsk"],["Spiskummin","1 tsk"],["Koriander, mald","1 tsk"],["Chilipulver","½ tsk"],["Salt","efter smak"],["Ris","till servering"]],steps:["Blötlägg linserna minst 8 timmar. Koka i nytt vatten 1 timme tills mjuka.","Fräs lök i smör ca 8 min tills gyllenbrun. Tillsätt vitlök och ingefära, fräs 2 min.","Rör ner alla kryddor, fräs 1 min. Tillsätt tomater och sjud 10 min.","Häll i kokta linser, kidney-bönor och ev. lite vatten. Sjud 20–30 min, rör om ibland.","Rör ner grädde och smör. Smaka av med salt. Servera med ris."]},
+  "Pasta cacio e pepe":{servings:4,ingredients:[["Spaghetti eller tonnarelli","400 g"],["Pecorino Romano, riven","100 g"],["Parmigiano Reggiano, riven","50 g"],["Svartpeppar, grovmalen","2 tsk"],["Salt","efter smak"],["Pastavatten","2–3 dl"]],steps:["Koka pastan al dente i rikligt saltat vatten. Spara 3 dl pastavatten.","Rosta svartpepparn torrt i en stor panna tills doftande, ca 1 min. Häll i 1 dl pastavatten.","Dra av värmen. Blanda ostar med lite pastavatten till en pasta.","Lägg i den avrunna pastan, rör kraftigt och tillsätt osten gradvis med pastavatten till krämig konsistens.","Servera omedelbart med mer peppar och ost."]},
+  "Pasta all'arrabbiata":{servings:4,ingredients:[["Penne","400 g"],["Krossade tomater","800 g"],["Vitlök","4 klyftor"],["Röd chili, torkad","1–2 st"],["Olivolja","3 msk"],["Persilja","½ kruka"],["Salt","efter smak"]],steps:["Skiva vitlök tunt. Fräs med chili i olivolja på medel-låg värme tills vitlöken är gyllenbrun, ca 3 min.","Häll i krossade tomater, salta. Sjud 15 min.","Koka penne al dente. Blanda med såsen.","Toppa med hackad persilja och ett ringel olivolja."]},
+  "Risotto med svamp och parmesan":{servings:4,ingredients:[["Arborioris","320 g"],["Blandad svamp (porcini, champinjon)","400 g"],["Torkad porcini","20 g"],["Gul lök","1 st"],["Vitlök","2 klyftor"],["Vitt vin","1 dl"],["Grönsaksbuljongtärning","2 st"],["Smör","60 g"],["Parmigiano, riven","80 g"],["Olivolja","2 msk"],["Timjan","4 kvistar"],["Salt & peppar","efter smak"]],steps:["Blötlägg torkad porcini i 3 dl varmt vatten 20 min. Sila, spara vätskan. Koka 1 l buljong, håll varm.","Finhacka lök och vitlök. Fräs i olivolja och 20 g smör tills mjuk, ca 5 min.","Tillsätt riset, rosta 2 min. Häll i vin, rör tills det absorberats.","Tillsätt buljong en slev i taget, rör konstant. Tillsätt porcinivatten med. Fortsätt 18 min.","Fräs färsk svamp separat med timjan i smör tills gyllenbrun.","Rör ner resterande smör och parmesan i riset. Servera toppat med svamp."]},
+  "Gnocchi med gorgonzolasås":{servings:4,ingredients:[["Färska gnocchi","500 g"],["Gorgonzola dolce","150 g"],["Grädde","2 dl"],["Valnötter","60 g"],["Smör","20 g"],["Salvia","8 blad"],["Parmigiano, riven","30 g"],["Salt & peppar","efter smak"]],steps:["Rosta valnötterna torrt i panna, grovhacka.","Smält gorgonzola i grädde på låg värme, rör tills slät. Krydda med peppar.","Koka gnocchi enligt förpackning tills de flyter upp. Lyft upp med hålslev.","Fräs salvian i smör tills krispig.","Blanda gnocchi med gorgonzolasås. Toppa med valnötter, salvia och parmesan."]},
+  "Minestrone":{servings:6,ingredients:[["Kidneybönor (burk)","1 x 400 g"],["Krossade tomater","400 g"],["Zucchini","1 st"],["Morot","2 st"],["Selleri","2 stjälkar"],["Gul lök","1 st"],["Vitlök","3 klyftor"],["Purjolök","1 st"],["Ditalini-pasta","100 g"],["Grönsaksbuljongtärning","2 st"],["Olivolja","2 msk"],["Basilika","½ kruka"],["Parmigiano-skorp","1 st"],["Salt & peppar","efter smak"]],steps:["Hacka alla grönsaker. Fräs lök, selleri och morot i olivolja ca 6 min.","Tillsätt vitlök och purjolök, fräs 2 min. Rör ner tomatpuré.","Häll i tomater, bönor, 1,5 l vatten, buljong och parmesan-skorpen.","Sjud 20 min. Tillsätt zucchini och pasta de sista 10 min.","Smaka av, toppa med basilika och ett ringel olivolja."]},
+  "Pasta e fagioli":{servings:4,ingredients:[["Borlottibönor (burk)","2 x 400 g"],["Ditalini","150 g"],["Krossade tomater","200 g"],["Gul lök","1 st"],["Vitlök","3 klyftor"],["Selleri","2 stjälkar"],["Rosmarin","2 kvistar"],["Olivolja","3 msk"],["Grönsaksbuljongtärning","1 st"],["Salt & peppar","efter smak"]],steps:["Hacka lök, vitlök och selleri. Fräs i olivolja med rosmarin ca 5 min.","Tillsätt tomater och bönor. Sjud 10 min.","Mixa hälften av bönorna slät, blanda tillbaka.","Häll i 8 dl vatten med buljong. Koka upp, tillsätt pasta.","Koka tills pasta är al dente. Justera konsistens med vatten. Smaka av."]},
+  "Pollo al limone":{servings:4,ingredients:[["Kycklinglår (urbenade)","800 g"],["Citron","2 st"],["Vitt vin","1,5 dl"],["Vitlök","4 klyftor"],["Kapris","2 msk"],["Smör","30 g"],["Olivolja","2 msk"],["Timjan","4 kvistar"],["Salt & peppar","efter smak"],["Pasta","till servering"]],steps:["Salta och peppra kycklingen. Bryn i olivolja på hög värme 4 min per sida.","Tillsätt krossad vitlök och timjan, fräs 1 min. Häll i vin, skrapa botten.","Pressa i citronsaft, tillsätt citronskal och kapris.","Sjud under lock 20 min tills kyckling är genomvarm.","Rör ner smöret, smaka av. Servera med pasta."]},
+  "Saltimbocca":{servings:4,ingredients:[["Kalvschnitzlar","4 st (ca 150 g/st)"],["Prosciutto crudo","8 skivor"],["Salvia","16 blad"],["Smör","60 g"],["Vitt vin","1,5 dl"],["Salt & peppar","efter smak"],["Potatismos","till servering"]],steps:["Lägg 2 salviablad på varje schnitzel, täck med 2 skivor prosciutto. Fäst med tandpetare.","Vänd i lite mjöl. Stek i smör, prosciuttosidan ner, 2 min. Vänd och stek 1 min.","Ta ur köttet. Häll vin i pannan, skrapa botten. Reducera 2 min.","Lägg tillbaka köttet, värm 1 min. Servera med mos och skyn."]},
+  "Chicken fajitas":{servings:4,ingredients:[["Kycklinglår (strimlat)","700 g"],["Röd & gul paprika","2 st"],["Rödlök","2 st"],["Lime","2 st"],["Spiskummin","1 tsk"],["Chilipulver","1 tsk"],["Rökt paprikapulver","1 tsk"],["Vitlök","2 klyftor"],["Olivolja","2 msk"],["Mjuka tortillas","8 st"],["Guacamole, salsa, crème fraîche","till servering"]],steps:["Marinera kyckling med lime, spiskummin, chili, paprikapulver, vitlök och olja i 30 min.","Strimla paprika och lök. Woka i het panna 4–5 min tills mjuk med lite färg.","Stek kycklingen i het panna i omgångar tills genomstekt och brynt, ca 6 min.","Värm tortillas. Servera allt separat så var och en bygger sina fajitas."]},
+  "Enchiladas med röd sås":{servings:4,ingredients:[["Mjuka tortillas","8 st"],["Svarta bönor (burk)","1 x 400 g"],["Riven ost (cheddar/mozzarella)","200 g"],["Röd enchilada-sås","400 ml"],["Röd paprika","1 st"],["Majs (burk)","1 x 200 g"],["Spiskummin","1 tsk"],["Rödlök","1 st"],["Koriander","till servering"],["Crème fraîche","till servering"]],steps:["Hacka lök och paprika, fräs mjukt 5 min. Blanda med bönor, majs och spiskummin.","Häll hälften av enchilada-såsen i botten av ugnsform.","Fyll tortillorna med bönfyllning och lite ost, rulla ihop och lägg i form.","Täck med resterande sås och resten av osten. Grädda 200°C, 20 min.","Toppa med koriander och crème fraîche."]},
+  "Pozole rojo":{servings:6,ingredients:[["Fläskskuldra","700 g"],["Hominy/vit majs (burk)","2 x 400 g"],["Torkad ancho-chile","3 st"],["Torkad guajillo-chile","3 st"],["Gul lök","2 st"],["Vitlök","5 klyftor"],["Oregano","1 tsk"],["Kycklingbuljongtärning","2 st"],["Salladskål, radisa, lime","till servering"],["Salt","efter smak"]],steps:["Koka fläsket med lök, vitlök och salt i 1,5 h tills mört. Ta ur köttet, spara buljongen.","Rosta torkad chile torrt 1 min, lägg i varmt vatten 20 min. Mixa med lite buljong till sås.","Sila chilesåsen ner i buljongen. Tillsätt hominy och oregano, sjud 20 min.","Strimla fläsket, lägg tillbaka. Smaka av.","Servera i djupa skålar med kål, radisa, oregano och lime."]},
+  "Huevos rancheros":{servings:4,ingredients:[["Ägg","8 st"],["Majstortillas","8 st"],["Krossade tomater","400 g"],["Röd paprika","1 st"],["Jalapeño","1 st"],["Vitlök","2 klyftor"],["Spiskummin","1 tsk"],["Avocado","2 st"],["Crème fraîche","till servering"],["Koriander","till servering"],["Olivolja","2 msk"]],steps:["Hacka paprika, jalapeño och vitlök. Fräs i olja 4 min.","Tillsätt tomater och spiskummin, sjud 10 min. Smaka av.","Stek tortillas torrt i het panna 30 sek per sida.","Gör gropar i såsen, knäck äggen, lägg lock på och pochera 4–5 min.","Servera ägg på tortillas med skivad avocado, crème fraîche och koriander."]},
+  "Palak paneer":{servings:4,ingredients:[["Paneer","300 g"],["Babyspenat","500 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Färsk ingefära","2 msk riven"],["Garam masala","1 tsk"],["Spiskummin","1 tsk"],["Koriander, mald","1 tsk"],["Grädde","1 dl"],["Smör","30 g"],["Salt","efter smak"],["Naan","till servering"]],steps:["Blanchera spenat 2 min, kyl snabbt. Mixa slät med lite vatten.","Tärna paneer, stek gyllenbrun i smör. Lägg åt sidan.","Fräs hackad lök tills gyllenbrun, ca 10 min. Tillsätt vitlök och ingefära, fräs 2 min.","Tillsätt kryddor, fräs 1 min. Häll i spenatpurén, sjud 5 min.","Rör ner grädde och paneer, värm 2 min. Servera med naan."]},
+  "Chana masala":{servings:4,ingredients:[["Kikärter (burk)","2 x 400 g"],["Krossade tomater","400 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Ingefära","2 msk riven"],["Garam masala","1,5 tsk"],["Spiskummin","1 tsk"],["Koriander, mald","1 tsk"],["Amchur (mangopulver)","½ tsk"],["Rapsolja","2 msk"],["Koriander","till servering"],["Ris eller naan","till servering"]],steps:["Fräs hackad lök i olja tills gyllenbrun, ca 10 min.","Tillsätt vitlök och ingefära, fräs 2 min. Rör ner alla kryddor utom amchur, fräs 1 min.","Häll i tomater, sjud 10 min.","Tillsätt kikärter och amchur, sjud 15 min. Mosa lätt några kikärter för tjockare sås.","Servera med ris och koriander."]},
+  "Butter chicken":{servings:4,ingredients:[["Kycklinglår (utur ben)","700 g"],["Krossade tomater","400 g"],["Grädde","2 dl"],["Smör","50 g"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Ingefära","2 msk riven"],["Garam masala","1,5 tsk"],["Spiskummin","1 tsk"],["Gurkmeja","½ tsk"],["Chilipulver","½ tsk"],["Yoghurt","1 dl (marinad)"],["Salt","efter smak"],["Ris","till servering"]],steps:["Marinera kyckling i yoghurt, hälften av kryddorna och salt, minst 1 h.","Stek kycklingen i smör tills brynt och genomvarm, ca 8 min. Ta ur.","Fräs lök i smör tills gyllenbrun. Tillsätt vitlök, ingefära och resten av kryddorna, fräs 2 min.","Häll i tomater, mixa slät med stavmixer. Sjud 10 min.","Rör ner grädde och kyckling, sjud 10 min. Servera med ris."]},
+  "Aloo gobi":{servings:4,ingredients:[["Potatis","500 g"],["Blomkål","1 st (ca 500 g)"],["Gul lök","1 st"],["Vitlök","3 klyftor"],["Ingefära","1 msk riven"],["Gurkmeja","1 tsk"],["Spiskummin","1 tsk"],["Koriander, mald","1 tsk"],["Chilipulver","¼ tsk"],["Rapsolja","2 msk"],["Färsk koriander","till servering"],["Salt","efter smak"]],steps:["Tärna potatis, dela blomkålen i buketter. Koka potatis 5 min, avrina.","Fräs hackad lök i olja tills gyllenbrun. Tillsätt vitlök och ingefära, fräs 1 min.","Rör ner kryddorna, fräs 30 sek. Tillsätt potatis och blomkål.","Blanda väl, täck och stek på medelvärme 15 min tills allt är mört.","Toppa med färsk koriander. Servera som tillbehör eller med ris."]},
+  "Saag aloo":{servings:4,ingredients:[["Potatis","600 g"],["Babyspenat","300 g"],["Gul lök","2 st"],["Vitlök","3 klyftor"],["Ingefära","1 msk riven"],["Spiskummin","1 tsk"],["Gurkmeja","½ tsk"],["Garam masala","½ tsk"],["Rapsolja","2 msk"],["Salt","efter smak"]],steps:["Tärna och koka potatisen halvmjuk, ca 8 min. Avrina.","Fräs hackad lök i olja tills gyllenbrun. Tillsätt vitlök, ingefära och kryddor, fräs 1 min.","Lägg i potatis, rör om och stek 5 min tills lite knaprig.","Tillsätt spenat och rör tills ihopfalld. Smaka av med salt."]},
+  "Lamb rogan josh":{servings:4,ingredients:[["Lammbog (tärnad)","700 g"],["Gul lök","2 st"],["Vitlök","5 klyftor"],["Ingefära","2 msk riven"],["Yoghurt","1,5 dl"],["Krossade tomater","200 g"],["Kashmiri chili","1 msk"],["Spiskummin (hel)","1 tsk"],["Koriander, mald","2 tsk"],["Kanel","1 st"],["Kardemumma","3 kapslar"],["Ghee eller olja","2 msk"],["Salt","efter smak"],["Ris","till servering"]],steps:["Bryn lammet i omgångar i ghee, ta ur. Fräs hel kanel och kardemumma 30 sek.","Fräs hackad lök tills gyllenbrun, ca 10 min. Tillsätt vitlök och ingefära, fräs 2 min.","Rör ner mald koriander och kashmiri-chili, fräs 1 min.","Lägg tillbaka lammet, tillsätt yoghurt lite i taget. Rör ner tomater.","Sjud under lock 1 h tills lammet är mört. Servera med ris."]},
+  "Korma med kyckling":{servings:4,ingredients:[["Kycklinglår","700 g"],["Gul lök","2 st"],["Vitlök","3 klyftor"],["Ingefära","1 msk"],["Skalade mandlar","60 g"],["Kokosmjölk","200 ml"],["Grädde","1 dl"],["Safran","½ tsk"],["Kardemumma","4 kapslar"],["Kanel","1 st"],["Koriander, mald","1 tsk"],["Ghee","2 msk"],["Salt","efter smak"],["Ris","till servering"]],steps:["Blötlägg saffran i 2 msk varm mjölk. Mixa mandlar med lite vatten till pasta.","Fräs hel kanel och kardemumma i ghee 30 sek. Tillsätt hackad lök tills gyllenbrun.","Lägg i vitlök, ingefära och mandelpasta, fräs 2 min. Tillsätt malen koriander.","Lägg i kyckling, rör om. Häll i kokosmjölk, grädde och saffransmjölk.","Sjud under lock 25 min. Smaka av med salt. Servera med ris."]},
+  "Pad thai med räkor":{servings:4,ingredients:[["Risnudlar (medium)","300 g"],["Räkor (skalade)","300 g"],["Ägg","3 st"],["Böngroddar","150 g"],["Salladslök","4 st"],["Vitlök","3 klyftor"],["Tamarindpasta","3 msk"],["Fisksås","2 msk"],["Palmsocker","1 msk"],["Rostad rapsolja","2 msk"],["Jordnötter (rostade)","60 g"],["Lime","2 st"],["Torkad chili","till servering"]],steps:["Blötlägg nudlar i varmt vatten 20 min, avrina. Blanda tamarind, fisksås och socker.","Woka räkor i olja 2 min, ta ur. Fräs hackad vitlök 30 sek.","Tillsätt nudlar och sås, rör kraftigt 2 min.","Skjut åt sidan, scramble-fräs äggen, blanda med nudlar.","Tillsätt räkor, böngroddar och salladslök. Toppa med jordnötter, lime och chili."]},
+  "Thai röd curry med kyckling":{servings:4,ingredients:[["Kycklinglår (tärnat)","600 g"],["Kokosmjölk","400 ml"],["Röd currypasta","3 msk"],["Bambuskott (burk)","200 g"],["Röd paprika","1 st"],["Fisksås","2 msk"],["Palmsocker","1 tsk"],["Lime","1 st"],["Thaibasilikum","1 kruka"],["Kokosolja","1 msk"],["Jasminris","till servering"]],steps:["Fräs currypastan i kokosolja 1 min. Häll i hälften av kokosmjölken, koka 2 min.","Tillsätt kyckling, rör om och stek 5 min.","Häll i resterande kokosmjölk, bambuskott och paprika. Sjud 10 min.","Smaka av med fisksås, socker och lime. Rör ner thaibasilikum.","Servera med jasminris."]},
+  "Tom yum soppa":{servings:4,ingredients:[["Räkor (oskalade)","400 g"],["Champinjoner","200 g"],["Citrongräs","2 stjälkar"],["Galangal eller ingefära","3 skivor"],["Kaffirlimeblad","4 st"],["Röd chili","2 st"],["Fisksås","3 msk"],["Lime","2 st"],["Kycklingbuljongtärning","1 st"],["Koriander","till servering"]],steps:["Koka 1,2 l vatten med buljongtärning, citrongräs (krossat), galangal och limeblad, 10 min.","Sila bort aromater. Tillsätt champinjoner och chili, sjud 3 min.","Lägg i räkor, sjud tills rosa, ca 2 min.","Smaka av med fisksås och limejuice. Servera toppat med koriander."]},
+  "Mango sticky rice":{servings:4,ingredients:[["Glutinöst ris","300 g"],["Kokosmjölk","400 ml"],["Socker","3 msk"],["Salt","½ tsk"],["Mango (mogen)","2 st"],["Rostade sesamfrön","1 msk"]],steps:["Blötlägg riset 4–8 h. Ånga i 25 min tills genomkokt.","Koka upp 300 ml kokosmjölk med socker och salt. Häll över det ångade riset, rör om. Täck och låt absorbera 20 min.","Koka 100 ml kokosmjölk med lite socker och salt till topping-sås.","Skala och skiva mangon.","Forma ris, lägg mango bredvid. Ringla kokossås och strö sesamfrön."]},
+  "Mapo tofu":{servings:4,ingredients:[["Silkestofu","400 g"],["Nötfärs","200 g"],["Doubanjiang","2 msk"],["Fermenterade svarta bönor","1 msk"],["Vitlök","4 klyftor"],["Ingefära","1 msk"],["Sichuan-peppar (mald)","½ tsk"],["Kycklingbuljong","2 dl"],["Soja","1 msk"],["Sesamolja","1 tsk"],["Salladslök","3 st"],["Rapsolja","2 msk"],["Majsstärkelse","1 msk"]],steps:["Tärna tofu, koka försiktigt i saltat vatten 2 min. Avrina.","Fräs köttfärsen i olja tills brynt. Tillsätt doubanjiang och svarta bönor, fräs 1 min.","Tillsätt vitlök och ingefära, fräs 30 sek. Häll i buljong och soja.","Lägg försiktigt ner tofun. Sjud 4 min. Red av med majsstärkelse löst i lite vatten.","Toppa med Sichuan-peppar, salladslök och sesamolja."]},
+  "Kung pao kyckling":{servings:4,ingredients:[["Kycklingfilé","600 g"],["Torkad röd chili","8 st"],["Sichuan-peppar","1 tsk"],["Jordnötter (rostade)","80 g"],["Vitlök","3 klyftor"],["Ingefära","1 msk"],["Salladslök","4 st"],["Soja","2 msk"],["Svart vinäger","1 msk"],["Socker","1 tsk"],["Majsstärkelse","1 msk"],["Sesamolja","1 tsk"],["Rapsolja","2 msk"]],steps:["Tärna kycklingen, marinera i soja, stärkelse och lite olja, 15 min.","Blanda soja, vinäger, socker och stärkelse till sås.","Woka chili och Sichuan-peppar i het olja 30 sek. Tillsätt kyckling, woka 4 min.","Tillsätt vitlök och ingefära, woka 1 min. Häll i sås, rör till glansig.","Lägg i jordnötter och salladslök. Ringla sesamolja."]},
+  "Wonton-soppa":{servings:4,ingredients:[["Wonton-skal","24 st"],["Fläskfärs","200 g"],["Räkor (skalade, hackade)","100 g"],["Ingefära","1 msk riven"],["Salladslök","3 st"],["Soja","1 msk"],["Sesamolja","1 tsk"],["Kycklingbuljong","1,5 l"],["Pak choi","2 st"],["Salt & vitpeppar","efter smak"]],steps:["Blanda fläskfärs, räkor, ingefära, hackad salladslök, soja och sesamolja till fyllning.","Lägg 1 tsk fyllning i varje wonton-skal, fukta kanterna och vik till trianguler eller säckform.","Koka wontons i vatten 4–5 min tills de flyter. Ta upp.","Koka buljong, smaka av. Koka pak choi 2 min.","Servera wontons i buljong med pak choi."]},
+  "Stekt ris med ägg och grönsaker":{servings:4,ingredients:[["Dag-gammalt jasminris","600 g (kokt)"],["Ägg","4 st"],["Majs (burk)","1 x 200 g"],["Frysta ärtor","150 g"],["Salladslök","4 st"],["Vitlök","3 klyftor"],["Soja","3 msk"],["Sesamolja","1 tsk"],["Rapsolja","2 msk"],["Vitpeppar","½ tsk"]],steps:["Värm wok på hög värme tills rykande het. Tillsätt olja.","Fräs vitlök 30 sek. Tillsätt riset, rör och tryck mot botten 3 min tills lite knaprig.","Skjut riset åt sidan, scramble-fräs äggen.","Blanda ägg och ris. Tillsätt majs, ärtor och soja, woka 2 min.","Toppa med salladslök, vitpeppar och sesamolja."]},
+  "Hoisin-fläsk med nudlar":{servings:4,ingredients:[["Fläskkarré","600 g"],["Hoisinsås","4 msk"],["Soja","2 msk"],["Sesamolja","1 msk"],["Vitlök","3 klyftor"],["Ingefära","1 msk"],["Äppelcidervinäger","1 msk"],["Udon- eller ramen-nudlar","400 g"],["Gurka (inlagd eller färsk)","1 st"],["Salladslök","3 st"],["Sesamfrön","1 msk"]],steps:["Blanda hoisin, soja, sesamolja, vitlök, ingefära och vinäger till marinad.","Marinera fläsket minst 1 h. Rosta i ugn 180°C i 2 h tills mört, pensla med marinad varannan halvtimme.","Koka nudlar enligt förpackning.","Strimla fläsket. Skiva gurkan tunt.","Servera fläsk på nudlar med gurka, salladslök och sesamfrön."]},
+  "Gyudon (nötköttsris)":{servings:4,ingredients:[["Tunt skivat nötkött (entrecôte/innanlår)","500 g"],["Gul lök","3 st"],["Dashi (granulat)","1 msk"],["Mirin","3 msk"],["Sake","2 msk"],["Soja","3 msk"],["Socker","1 tsk"],["Ångat japanskt ris","till servering"],["Beni shoga (inlagd ingefära)","till servering"],["Ägg","4 st (halvkokta, valfritt)"]],steps:["Koka dashi, mirin, sake, soja och socker. Tillsätt skivelad lök, sjud 8 min.","Lägg i nötköttet i tunna lager, sjud 3–4 min tills precis genomvarm.","Halvkoka äggen om önskat: 7 min i kokande vatten, kyl snabbt.","Lägg ris i skål, toppa med kött och lök och lite av buljongen.","Garnera med beni shoga och halverat ägg."]},
+  "Tonkotsu ramen":{servings:4,ingredients:[["Färska ramen-nudlar","400 g"],["Fläskben och revbensspjäll","1 kg"],["Gul lök","2 st"],["Vitlök","1 huvud"],["Ingefära","5 cm"],["Soja (tare)","4 msk"],["Mirin","2 msk"],["Ägg","4 st"],["Chashu-fläsk (se steg)","valfritt"],["Nori","4 blad"],["Salladslök","till servering"],["Bambuskott","till servering"]],steps:["Koka fläskbenen i vatten 5 min, skölj. Koka med lök, vitlök och ingefära i 10–12 h på låg värme.","Sila buljongen, smaka av med salt. Blanda soja och mirin till tare.","Sjud äggen 7 min, kyl i isvatten, skala.","Marinera äggen i soja, mirin och vatten 1 h.","Värm buljong, häll i skålar med 1 msk tare per skål. Lägg i nudlar och toppings."]},
+  "Miso-soppa med tofu och wakame":{servings:4,ingredients:[["Vit eller röd misopasta","3 msk"],["Silkestofu","200 g"],["Torkad wakame","1 msk"],["Dashi (granulat)","1 msk"],["Salladslök","3 st"],["Vatten","1 l"]],steps:["Koka upp vatten med dashi. Dra av värmen.","Blötlägg wakame 5 min, pressa ur vatten.","Tärna tofu, lägg försiktigt i soppan.","Lös misopasta i lite varm soppa, häll tillbaka. Koka INTE upp igen.","Servera med wakame och skivad salladslök."]},
+  "Teriyaki-lax":{servings:4,ingredients:[["Laxfilé","4 st (ca 150 g/st)"],["Soja","3 msk"],["Mirin","3 msk"],["Sake","2 msk"],["Socker","1 msk"],["Sesamolja","1 tsk"],["Sesamfrön","1 msk"],["Ångat japanskt ris","till servering"],["Edamame","150 g"],["Inlagd gurka","till servering"]],steps:["Blanda soja, mirin, sake och socker till teriyakisås. Marinera laxen 15 min.","Stek laxen i sesamolja 3 min per sida tills genomvarm.","Tillsätt sås i pannan, pensla och glacera 1–2 min tills glansig.","Anga eller koka edamame.","Servera lax på ris med edamame och inlagd gurka. Strö sesamfrön."]},
+  "Oyakodon":{servings:4,ingredients:[["Kycklinglår (utur ben, tärnat)","500 g"],["Ägg","6 st"],["Gul lök","2 st"],["Dashi","3 dl"],["Soja","3 msk"],["Mirin","2 msk"],["Socker","1 tsk"],["Japanskt ris","till servering"],["Mitsuba eller salladslök","till servering"]],steps:["Koka dashi, soja, mirin och socker. Tillsätt skivelad lök, sjud 3 min.","Lägg i kyckling, sjud under lock 5–6 min.","Vispa äggen löst (inte för enhetliga). Häll hälften ovanpå kycklingen.","Lägg lock och sjud 1 min. Häll i resten av äggen, sjud 30 sek till halvflytande.","Lägg på ris och garnera med mitsuba."]},
+  "Katsu curry":{servings:4,ingredients:[["Kycklingbröst","4 st"],["Panko-ströbröd","150 g"],["Ägg","2 st"],["Vetemjöl","3 msk"],["Japansk curry-roux (S&B)","4 portioner"],["Gul lök","2 st"],["Morot","1 st"],["Potatis","2 st"],["Kycklingbuljong","6 dl"],["Rapsolja","till fritering"],["Japanskt ris","till servering"]],steps:["Koka lök, morot och potatis i buljong 15 min. Tillsätt curry-roux, rör tills slät. Sjud 5 min.","Platta ut kycklingen, salta. Panera i mjöl, ägg och panko.","Fritera i 170°C olja tills gyllenbrun och genomvarm, ca 5–6 min.","Skiva kycklingen snett.","Lägg ris i skål, häll curry bredvid och lägg kycklingskivorna ovanpå."]},
+  "Bibimbap":{servings:4,ingredients:[["Japanskt ris","400 g (kokt)"],["Nötfärs","300 g"],["Soja","2 msk"],["Sesamolja","2 msk"],["Vitlök","3 klyftor"],["Morot (strimlad)","2 st"],["Zucchini (strimlad)","1 st"],["Babyspenat","100 g"],["Böngroddar","100 g"],["Ägg","4 st"],["Gochujang","till servering"],["Sesamfrön","till servering"]],steps:["Bryn köttfärsen med soja, sesamolja och vitlök. Salta.","Woka varje grönsak separat i sesamolja med vitlök, salta. Håll varm.","Stek äggen med rinnig gula.","Fördela ris i skålar. Arrangera grönsaker och kött radiellt ovanpå.","Lägg ett ägg i mitten. Lägg gochujang vid sidan, strö sesamfrön. Blanda allt vid bordet."]},
+  "Kimchi-jjigae":{servings:4,ingredients:[["Fermenterad kimchi","300 g"],["Fläskkarré (tärnad)","300 g"],["Silkestofu","300 g"],["Gochugaru","1 msk"],["Vitlök","3 klyftor"],["Salladslök","3 st"],["Sesamolja","1 tsk"],["Fläsk- eller kycklingbuljong","5 dl"],["Soja","1 msk"],["Salt","efter smak"]],steps:["Fräs fläsk i sesamolja 3 min. Tillsätt kimchi och gochugaru, fräs 2 min.","Häll i buljong, soja och vitlök. Koka upp.","Tillsätt tärnad tofu, sjud 10 min.","Smaka av med salt. Toppa med salladslök.","Servera med ris."]},
+  "Bulgogi":{servings:4,ingredients:[["Tunt skivat nötkött (entrecôte)","600 g"],["Asiatiskt päron eller äpple","½ st (riven)"],["Soja","4 msk"],["Sesamolja","2 msk"],["Socker","1 msk"],["Vitlök","4 klyftor"],["Ingefära","1 msk"],["Salladslök","3 st"],["Sesamfrön","1 msk"],["Ris eller salladsblad","till servering"]],steps:["Riv lök, vitlök och ingefära. Blanda med soja, sesamolja, socker och päron till marinad.","Marinera nötköttet minst 30 min, gärna över natten.","Grilla eller stek i het panna i omgångar, ca 2 min per sida.","Strö sesamfrön och salladslök.","Servera med ris eller inlindat i salladsblad med gochujang."]},
+  "Japchae":{servings:4,ingredients:[["Koreanska glasnudlar (dangmyeon)","200 g"],["Nötkött (strimlat)","200 g"],["Spenat","150 g"],["Morot (strimlad)","1 st"],["Gul lök (strimlad)","1 st"],["Torkad shiitake","5 st"],["Soja","3 msk"],["Sesamolja","2 msk"],["Socker","1 msk"],["Vitlök","2 klyftor"],["Sesamfrön","1 msk"],["Ägg","1 st (valfritt)"]],steps:["Blötlägg shiitake och nudlar separat i varmt vatten 20 min. Koka nudlar 5 min, avrina.","Marinera nötkött i soja, sesamolja och socker, 15 min. Stek 3 min.","Woka morot, lök och shiitake var för sig med lite soja och sesamolja.","Blanchera spenat, pressa ur vatten, blanda med soja och sesamolja.","Blanda nudlar med kött, grönsaker och resterande soja. Toppa med sesamfrön."]},
+  "Pho bo":{servings:4,ingredients:[["Oxben/oxtail","1 kg"],["Lökhalvor (grillade)","2 st"],["Ingefära (grillad)","5 cm"],["Stjärnanis","3 st"],["Kanel","1 st"],["Kardemumma","3 st"],["Soja","2 msk"],["Fisksås","3 msk"],["Risnudlar (tunna)","400 g"],["Tunt skivat nötkött","300 g"],["Böngroddar, thaibasilikum, lime","till servering"],["Chilisås och hoisin","till servering"]],steps:["Koka benen i vatten 5 min, skölj. Grilla lökhavorna och ingefäran under grillelem 5 min.","Koka benen med lök, ingefära och kryddor i 6–8 h. Sila, smaka av med fisksås och soja.","Blötlägg nudlarna 30 min, koka 30 sek. Fördela i skålar.","Lägg råskivet nötkött ovanpå nudlarna. Häll het buljong ovanpå (kokar köttet).","Servera med böngroddar, basilika, lime och såser vid sidan."]},
+  "Bún bò Huế":{servings:4,ingredients:[["Fläskben","500 g"],["Citrongräs","3 stjälkar"],["Räkpasta (mắm ruốc)","1 msk"],["Gochugaru eller chilipasta","2 msk"],["Fisksås","3 msk"],["Socker","1 tsk"],["Tjocka risnudlar","400 g"],["Salladslök, koriander, lime","till servering"],["Inlagd kål","till servering"]],steps:["Koka fläskbenen med citrongräs (krossat) och salt i 1,5 h. Sila, spara buljong.","Fräs räkpasta och chilipasta i olja 1 min. Häll i buljongen.","Smaka av med fisksås och socker. Sjud 10 min.","Koka nudlar, skölj i kallt vatten. Fördela i skålar.","Häll varm buljong, lägg fläsk och toppa med örter, lök och lime."]},
+  "Goi cuon (vårrullar)":{servings:4,ingredients:[["Rispapper (22 cm)","16 blad"],["Räkor (skalade, kokta)","250 g"],["Risnudlar (tunna)","100 g"],["Sallad (romansallat)","8 blad"],["Mynta","1 kruka"],["Morot (julienned)","1 st"],["Gurka (strimlad)","½ st"],["Jordnötssås: jordnötssmör","3 msk"],["Hoisin","2 msk"],["Lime","1 st"],["Vatten","2 msk"]],steps:["Koka nudlar, skölj i kallt vatten. Blanda jordnötssmör, hoisin, limejuice och vatten till sås.","Halvera räkorna längs med.","Blötlägg ett rispapper 10 sek, lägg på fuktig bräda.","Lägg sallad, nudlar, morot, gurka och mynta i nedre tredjedelen. Rulla ett varv, lägg räkorna med rosa sidan ned, fortsätt rulla tight.","Servera med jordnötssåsen."]},
+  "Shakshuka":{servings:4,ingredients:[["Ägg","6 st"],["Krossade tomater","800 g"],["Röd paprika","2 st"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Spiskummin","1,5 tsk"],["Koriander, mald","1 tsk"],["Paprikapulver, rökt","1 tsk"],["Cayennepeppar","¼ tsk"],["Olivolja","2 msk"],["Fetaost","100 g"],["Persilja eller koriander","till servering"],["Pitabröd","till servering"]],steps:["Hacka lök och paprika. Fräs i olivolja 7–8 min tills mjukt.","Tillsätt vitlök och alla kryddor, fräs 1 min. Häll i tomater, sjud 15 min.","Smaka av med salt. Gör 6 gropar, knäck ett ägg i varje.","Lägg lock, pochera på låg värme 6–8 min tills vita är stelnade men gulan rinnig.","Smula fetaost, strö örter. Servera med pitabröd."]},
+  "Falafel med hummus och pitabröd":{servings:4,ingredients:[["Torkade kikärter","300 g (blötlagda)"],["Persilja","1 kruka"],["Koriander","½ kruka"],["Gul lök","1 st"],["Vitlök","3 klyftor"],["Spiskummin","1,5 tsk"],["Koriander, mald","1 tsk"],["Bakpulver","½ tsk"],["Rapsolja","till fritering"],["Hummus (burk eller hemgjord)","300 g"],["Pitabröd","4 st"],["Inlagd kål och tomatcsallad","till servering"]],steps:["Mixa blötlagda (EJ kokta) kikärter med lök, vitlök, örter och kryddor. Salta. Tillsätt bakpulver.","Forma till 20 biffar, ca 3 cm diameter. Kyl 30 min.","Fritera i 180°C olja tills djupt gyllenbrun, ca 3 min per sida.","Eller: Pensla med olja, ugnsrosta 200°C, 20 min.","Värm pitabröd, fyll med falafel, hummus, sallad och inlagd kål."]},
+  "Köfte med bulgur och yoghurtsås":{servings:4,ingredients:[["Lammfärs","500 g"],["Gul lök (riven)","1 st"],["Vitlök","2 klyftor"],["Spiskummin","1 tsk"],["Koriander, mald","1 tsk"],["Paprikapulver","1 tsk"],["Kanel","¼ tsk"],["Salt & peppar","efter smak"],["Bulgur","200 g"],["Kycklingbuljong","4 dl"],["Krossade tomater","200 g"],["Yoghurt (10%)","300 g"],["Citron","1 st"],["Mynta","till servering"]],steps:["Blanda lammfärs med riven lök, vitlök och alla kryddor. Forma till avlånga kotletter.","Grilla eller stek i het panna 3–4 min per sida.","Koka bulgur i buljong med tomater 15 min, smaka av.","Blanda yoghurt med citronsaft och salt.","Servera köfte på bulgur med yoghurtsås och mynta."]},
+  "Hummus med ugnsrostade kikärter":{servings:4,ingredients:[["Kikärter (burk)","2 x 400 g"],["Tahini","3 msk"],["Vitlök","2 klyftor"],["Citron","1,5 st"],["Olivolja","3 msk"],["Spiskummin","1 tsk"],["Paprikapulver, rökt","1 tsk"],["Salt","efter smak"],["Pitabröd","till servering"]],steps:["Avrina kikärterna, spara vätskan. Dela av ¼ för rostning.","Mixa resten med tahini, vitlök, citronsaft, olivolja och salt tills helt slät. Späd med kikärtsvatten för önskad konsistens.","Blanda de reserverade kikärterna med olivolja, paprikapulver och salt. Rosta i 200°C, 25 min tills knapriga.","Lägg hummusen i skål, gör en grop. Häll i olivolja, lägg rostade kikärter ovanpå. Strö spiskummin.","Servera med pitabröd."]},
+  "Mujaddara":{servings:4,ingredients:[["Gröna eller bruna linser","200 g"],["Bulgur eller ris","200 g"],["Gul lök","4 st"],["Olivolja","4 msk"],["Spiskummin","1,5 tsk"],["Kanel","½ tsk"],["Salt & peppar","efter smak"],["Yoghurt","till servering"]],steps:["Koka linser i saltat vatten 20 min. Avrina.","Skiva lökarna tunt. Fräs i olivolja på medel-låg värme i 30–40 min tills djupt karamelliserade.","Ta av hälften av löken. Tillsätt spiskummin och kanel, fräs 1 min.","Tillsätt bulgur och linserna, häll i vatten (bulgurmängden × 1,5). Koka under lock 15 min.","Toppa med karamelliserad lök och servera med yoghurt."]},
+  "Khoresh ghormeh sabzi":{servings:4,ingredients:[["Lammkött (tärnat)","600 g"],["Kidneybönor (blötlagda)","200 g"],["Spenat","200 g"],["Persilja","1 kruka"],["Gräslök","½ kruka"],["Bockhornsklöver, torkad","2 msk"],["Torkad persisk lime (limoo amani)","3 st"],["Gul lök","2 st"],["Gurkmeja","1 tsk"],["Olivolja","3 msk"],["Salt & peppar","efter smak"],["Ris","till servering"]],steps:["Fräs hackad lök tills gyllenbrun. Bryn lammet, tillsätt gurkmeja.","Hacka och fräs spenat, persilja och gräslök separat tills mörkgrönt, ca 15 min.","Tillsätt örtfräset till köttet. Pierca limeklyftorna, lägg i.","Häll i kokta bönor och lite vatten. Sjud under lock 1,5 h.","Smaka av, ta ut limefrukterna. Servera med persiskt ris."]},
+  "Moussaka":{servings:6,ingredients:[["Aubergine","3 st"],["Lammfärs","600 g"],["Krossade tomater","400 g"],["Gul lök","2 st"],["Vitlök","3 klyftor"],["Kanel","½ tsk"],["Oregano","1 tsk"],["Rödvin","1 dl"],["— Bechamel —",""],["Smör","50 g"],["Vetemjöl","3 msk"],["Mjölk","5 dl"],["Muskotnöt","¼ tsk"],["Ägg","2 st"],["Riven ost","80 g"]],steps:["Skiva auberginen, salta och låt stå 20 min. Skölj, torka, pensla med olja. Grilla i ugn 200°C, 20 min.","Bryn lammfärs med lök och vitlök. Tillsätt kanel, oregano, tomat och vin. Sjud 20 min.","Bechamel: smält smör, rör ner mjöl, vispa in mjölk gradvis. Koka tjock, krydda med muskot och salt. Dra av, rör ner ägg och hälften av osten.","Varva aubergine och köttfärs i ugnsform. Häll bechamel ovanpå, strö ost.","Grädda 180°C, 45 min tills gyllenbrun. Låt vila 15 min."]},
+  "Spanakopita":{servings:6,ingredients:[["Spenat (fryst)","500 g"],["Fetaost","300 g"],["Ägg","3 st"],["Gul lök","1 st"],["Vitlök","2 klyftor"],["Dill","½ kruka"],["Muskotnöt","¼ tsk"],["Filodeg","250 g (ca 10 ark)"],["Smör (smält)","80 g"],["Salt & peppar","efter smak"]],steps:["Tina och pressa ur all vätska ur spenaten. Finhacka lök och vitlök, fräs mjukt.","Blanda spenat, lök, smulad fetaost, ägg, dill och muskotnöt. Salta och peppra.","Pensla ugnsform med smör. Lägg 5 filoark i botten, pensla varje ark med smör.","Fördela fyllningen jämnt. Vik in eventuella överhängande kanter.","Lägg 5 filoark ovanpå, pensla med smör. Skåra ytan. Grädda 180°C, 40–45 min."]},
+  "Harira":{servings:6,ingredients:[["Lamm (tärnat)","400 g"],["Kikärter (blötlagda)","200 g"],["Röda linser","100 g"],["Krossade tomater","400 g"],["Gul lök","2 st"],["Selleri","3 stjälkar"],["Koriander, mald","1 tsk"],["Spiskummin","1 tsk"],["Gurkmeja","½ tsk"],["Kanel","¼ tsk"],["Citronsaft","1 st"],["Persilja & koriander","till servering"],["Citron","till servering"]],steps:["Bryn lamm i olja. Tillsätt hackad lök, selleri och kryddor, fräs 3 min.","Häll i tomater, kikärter, linser och 1,5 l vatten. Koka upp.","Sjud under lock 1 h tills allt är mört.","Smaka av med citronsaft och salt. Justera konsistens.","Servera toppat med hackad persilja, koriander och citronskal."]},
+  "Shakshuka med merguez":{servings:4,ingredients:[["Merguez-korvar","300 g"],["Ägg","6 st"],["Krossade tomater","800 g"],["Röd paprika","2 st"],["Gul lök","1 st"],["Vitlök","3 klyftor"],["Harissa","1 msk"],["Spiskummin","1 tsk"],["Paprikapulver, rökt","1 tsk"],["Olivolja","2 msk"],["Persilja","till servering"],["Bröd","till servering"]],steps:["Stek merguez tills brynt, skär i bitar. Ta ur.","Fräs hackad lök och paprika i korvfettet 7 min. Tillsätt vitlök och kryddor.","Häll i tomater och harissa, sjud 12 min. Lägg i korvbitarna.","Gör gropar, knäck äggen. Pochera under lock 7 min.","Toppa med persilja, servera med bröd."]},
+  "Chermoula-lax med couscous":{servings:4,ingredients:[["Laxfilé","4 st"],["Koriander","1 kruka"],["Persilja","½ kruka"],["Vitlök","3 klyftor"],["Spiskummin","1 tsk"],["Paprikapulver, rökt","1 tsk"],["Cayenne","¼ tsk"],["Citron","1 st"],["Olivolja","4 msk"],["Couscous","300 g"],["Grönsaksbuljongtärning","1 st"],["Salt","efter smak"]],steps:["Mixa koriander, persilja, vitlök, kryddor, citronsaft och olivolja till chermoula-marinad.","Marinera laxen 30 min. Grilla eller stek 3–4 min per sida.","Häll kokande buljong (1:1) över couscous. Täck 5 min, fluffa med gaffel.","Blanda couscous med lite chermoula och citronskal.","Servera laxen på couscous med resten av cheermoulan."]},
+  "Jollof rice med kyckling":{servings:6,ingredients:[["Kycklinglår","800 g"],["Långkornigt ris","400 g"],["Krossade tomater","400 g"],["Röd paprika","2 st"],["Scotch bonnet eller jalapeño","1 st"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Ingefära","1 msk"],["Kyckling-bouillonkuber","2 st"],["Rapsolja","3 msk"],["Spiskummin, koriander, timjan","1 tsk vardera"],["Salt","efter smak"]],steps:["Mixa tomater, paprika och chili till sås. Fräs lök i olja tills gyllenbrun.","Tillsätt vitlök, ingefära och kryddor, fräs 2 min. Häll i tomatsåsen, sjud 20 min.","Bryn kycklingen separat, lägg i formen med såsen.","Tillsätt ris och buljong (ca 1:1,5 ris:vatten). Koka upp, sänk värmen, täck och koka 25 min.","Låt vila 10 min under folie. Rör om och servera."]},
+  "Injera med misir wot":{servings:4,ingredients:[["Röda linser","300 g"],["Berbere-kryddblandning","2 msk"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Ingefära","1 msk"],["Krossade tomater","200 g"],["Niter kibbeh (kryddat smör)","3 msk"],["Salt","efter smak"],["Injera (färdigt eller från mix)","till servering"]],steps:["Skölj linserna. Koka med hackad lök, vitlök och lite salt i 25 min.","Bryn hackad lök i niter kibbeh tills djupt gyllenbrun, ca 15 min.","Tillsätt vitlök, ingefära och berbere, fräs 2 min.","Blanda linserna med lökblandningen och tomater. Sjud 15 min.","Servera på injera-bröd, ät med händerna."]},
+  "Gallo pinto":{servings:4,ingredients:[["Svarta bönor (kokt eller burk)","400 g"],["Vitt ris (dag-gammalt)","400 g (kokt)"],["Gul lök","1 st"],["Röd paprika","1 st"],["Vitlök","3 klyftor"],["Salsa Lizano (eller worcestershire)","2 msk"],["Spiskummin","1 tsk"],["Rapsolja","2 msk"],["Koriander","½ kruka"],["Salt","efter smak"]],steps:["Hacka lök, paprika och vitlök. Fräs i olja tills mjukt, ca 5 min.","Tillsätt spiskummin och salsa Lizano, fräs 1 min.","Tillsätt bönorna med lite av sin vätska, rör om och sjud 3 min.","Lägg i det kalla riset, blanda väl och stek på medelhög värme tills lite knaprig, ca 5 min.","Toppa med hackad koriander. Servera som frukost eller tillbehör."]},
+  "Caldo de res":{servings:6,ingredients:[["Oxsvans eller nötkött","800 g"],["Majskolvar","2 st"],["Zucchini","2 st"],["Potatis","3 st"],["Morot","3 st"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Koriander","1 kruka"],["Kålblad","4 st"],["Salt","efter smak"],["Lime","till servering"],["Oregano","1 tsk"]],steps:["Koka kött med lök, vitlök och salt i 2 h tills mört.","Tillsätt morötter och potatis, koka 15 min.","Tillsätt majskolvar, zucchini och kål, koka 10 min.","Smaka av med salt och oregano.","Servera med koriander och lime."]},
+  "Aji de gallina":{servings:4,ingredients:[["Kycklingbröst","600 g"],["Gul ají amarillo-pasta (eller gul chili)","3 msk"],["Vitt bröd","3 skivor"],["Kycklingbuljong","3 dl"],["Valnötter","80 g"],["Parmigiano, riven","50 g"],["Gul lök","2 st"],["Vitlök","3 klyftor"],["Gurkmeja","1 tsk"],["Vegetabilisk olja","2 msk"],["Hårdkokta ägg","2 st"],["Ris","till servering"],["Svarta oliver","till servering"]],steps:["Koka kycklingen i buljong tills genomvarm, ca 20 min. Strimla, spara buljongen.","Blötlägg brödet i buljong, pressa ur. Mixa med valnötter och parmesan.","Fräs hackad lök i olja tills mjuk. Tillsätt vitlök, gurkmeja och ají-pasta, fräs 2 min.","Rör ner brödsmeten och lite buljong tills krämig sås. Lägg i kycklingen, sjud 10 min.","Servera med ris, halverade ägg och oliver."]},
+  "Coq au vin":{servings:4,ingredients:[["Kyckling (bit-for-bit)","1,2 kg"],["Rödvin (Bourgogne)","5 dl"],["Rökt bacon","150 g"],["Champinjoner","250 g"],["Pärllök","200 g"],["Vitlök","4 klyftor"],["Tomatpuré","1 msk"],["Timjan och lagerblad","4 kvistar + 2 blad"],["Smör","40 g"],["Olivolja","2 msk"],["Vetemjöl","2 msk"],["Salt & peppar","efter smak"]],steps:["Marinera kycklingen i vin med örter och vitlök, minst 2 h. Ta upp kyckling, sila marinad.","Bryn bacon och pärllök. Ta ur. Bryn kycklingen i smör och olja. Pudra med mjöl.","Häll i marinaden, tomatpuré och lite vatten. Koka upp, sjud under lock 40 min.","Stek champinjonerna separat, tillsätt de sista 10 min.","Smaka av, servera med potatis eller pasta."]},
+  "Ratatouille":{servings:4,ingredients:[["Aubergine","1 st"],["Zucchini","2 st"],["Röd paprika","2 st"],["Tomater","3 st"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Olivolja","4 msk"],["Timjan och rosmarin","4 kvistar vardera"],["Basilika","½ kruka"],["Salt & peppar","efter smak"]],steps:["Tärna alla grönsaker, ca 2 cm bitar. Salta auberginen, låt stå 15 min, torka.","Fräs lök och vitlök i olivolja tills mjukt, ca 8 min.","Tillsätt paprika, fräs 5 min. Lägg i aubergine, fräs 5 min.","Tillsätt zucchini, tomat och örter. Sjud under lock 25 min.","Smaka av, toppa med basilika. Servera som tillbehör eller med bröd."]},
+  "Bouillabaisse":{servings:4,ingredients:[["Blandad vit fisk","600 g"],["Räkor (oskalade)","300 g"],["Fänkål","1 st"],["Gul lök","2 st"],["Vitlök","4 klyftor"],["Krossade tomater","400 g"],["Saffran","½ tsk"],["Fänkålsfrön","1 tsk"],["Apelsinskal","1 bit"],["Vitt vin","2 dl"],["Olivolja","3 msk"],["Rouille (aioli med saffran)","till servering"],["Bröd","till servering"]],steps:["Blötlägg saffranet i 2 msk varmt vatten. Fräs hackad lök, vitlök och fänkål i olivolja 8 min.","Tillsätt tomater, vin, saffran, apelsinskal och fänkålsfrön. Häll i 1 l vatten.","Koka upp, sjud 20 min. Mixa delvis för tjockare konsistens.","Lägg i fisk och räkor, sjud 5–7 min tills fisken flagar.","Servera med rouille-smord bröd."]},
+  "Quiche Lorraine":{servings:6,ingredients:[["Mördegskal (färdigt)","1 st"],["Rökt bacon","200 g"],["Ägg","4 st"],["Grädde","3 dl"],["Gruyère, riven","100 g"],["Gul lök","1 st"],["Muskotnöt","¼ tsk"],["Salt & peppar","efter smak"]],steps:["Förgädda pajskalet i 200°C, 10 min. Sänk till 180°C.","Stek bacon och hackad lök tills gyllenbrun.","Vispa ägg och grädde. Blanda med bacon, lök och hälften av osten. Krydda med muskot.","Häll fyllningen i pajskalet. Strö resterande ost ovanpå.","Grädda 35–40 min tills stelnad och gyllenbrun."]},
+  "Boeuf bourguignon":{servings:4,ingredients:[["Nötkött (högrev)","800 g"],["Rödvin (Bourgogne)","4 dl"],["Rökt bacon","150 g"],["Champinjoner","250 g"],["Pärllök","200 g"],["Morot","2 st"],["Vitlök","4 klyftor"],["Tomatpuré","2 msk"],["Mjöl","2 msk"],["Smör","40 g"],["Olivolja","2 msk"],["Timjan, lagerblad","till smakning"],["Salt & peppar","efter smak"]],steps:["Tärna köttet. Marinera med vin, morot och vitlök natten över. Ta upp köttet, sila marinad.","Bryn bacon. Bryn köttet i omgångar i smör och olja, lägg tillbaka bacon.","Pudra med mjöl, rör om. Häll i marinad och tomatpuré. Koka upp.","Ugnskok 160°C, 2,5 h. Tillsätt champinjoner och pärllök de sista 30 min.","Smaka av, servera med kokt potatis eller pasta."]},
+  "Paella valenciana":{servings:4,ingredients:[["Kycklinglår","600 g"],["Paellarisotto (Valencia-ris)","300 g"],["Gröna bönor","150 g"],["Tomater","2 st"],["Vitlök","3 klyftor"],["Paprikapulver, rökt","1 tsk"],["Saffran","½ tsk"],["Kycklingbuljong","7 dl"],["Olivolja","3 msk"],["Rosmarin","2 kvistar"],["Salt","efter smak"]],steps:["Bryn kycklingen i olivolja i paellapannan 5 min per sida. Ta ur.","Fräs hackad vitlök och tomat i fettet 5 min. Tillsätt paprikapulver.","Lägg i riset, rör om 2 min. Häll i varm buljong med saffran. Lägg i kyckling och bönor.","Koka utan omrörning på medelvärme 18 min tills riset absorberat all vätska.","Låt vila 5 min. Socarrat (den krispiga bottenlagret) är ett gott tecken!"]},
+  "Patatas bravas":{servings:4,ingredients:[["Fast potatis","800 g"],["Olivolja","3 msk"],["Paprikapulver, rökt","1 tsk"],["Salt","efter smak"],["— Aioli —",""],["Majonnäs","4 msk"],["Vitlök","2 klyftor"],["Citronsaft","1 msk"],["— Brava-sås —",""],["Krossade tomater","200 g"],["Paprikapulver, rökt","1 tsk"],["Cayenne","¼ tsk"],["Vinäger","1 tsk"]],steps:["Tärna potatis, ca 3 cm. Blanda med olivolja, salt och paprikapulver. Rosta 220°C, 35 min tills knaprig.","Brava-sås: koka tomater med paprikapulver, cayenne och vinäger i 10 min. Mixa slät.","Aioli: vispa majonnäs med pressad vitlök och citron.","Servera het potatis toppat med brava-sås och aioli."]},
+  "Tortilla española":{servings:4,ingredients:[["Potatis","700 g"],["Ägg","6 st"],["Gul lök","2 st"],["Olivolja","1,5 dl"],["Salt","efter smak"]],steps:["Skiva potatis och lök tunt. Koka sakta i olivolja (confiera) på låg värme 25 min tills mjukt.","Avrina, spara oljan. Vispa äggen, blanda med potatis och lök. Salta.","Stek i 2 msk av oljan i liten panna (24 cm), ca 5 min tills kanterna stelnar.","Vänd med en tallrik och glid tillbaka, stek 3 min till.","Servera varm eller i rumstemperatur."]},
+  "Gazpacho":{servings:4,ingredients:[["Mogna tomater","800 g"],["Gurka","1 st"],["Röd paprika","1 st"],["Vitlök","2 klyftor"],["Rödlök","¼ st"],["Vitt bröd (utan skorpa)","2 skivor"],["Sherry-vinäger","2 msk"],["Olivolja","3 msk"],["Salt","efter smak"]],steps:["Blötlägg brödet i vatten 5 min, pressa ur.","Grovhacka alla grönsaker. Mixa med bröd, vinäger och olivolja tills helt slät.","Smaka av med salt och vinäger. Tillsätt lite vatten vid behov.","Sila om önskad superslät konsistens.","Kyl minst 2 h. Servera med ett ringel olivolja och hackad gurka och tomat."]},
+  "Janssons frestelse":{servings:4,ingredients:[["Mandelpotatis","800 g"],["Ansjovisfilé (burk)","2 x 50 g"],["Gul lök","3 st"],["Grädde","4 dl"],["Ströbröd","2 msk"],["Smör","20 g"],["Vitpeppar","efter smak"]],steps:["Skala och strimla potatisen (julienne, ca 3 mm). Skiva löken fint.","Fräs löken mjuk i smör, ca 8 min. Varva potatis och lök i smord ugnsform.","Lägg ansjovisfilé jämnt fördelade. Häll hälften av grädden.","Strö ströbröd ovanpå. Grädda 200°C i 20 min.","Häll i resterande grädde, sänk till 175°C, grädda ytterligare 25 min."]},
+  "Ärtsoppa med fläsk":{servings:4,ingredients:[["Torkade gula ärter","500 g"],["Rimmat fläsk","400 g"],["Gul lök","2 st"],["Timjan","4 kvistar"],["Lagerblad","2 st"],["Salt & vitpeppar","efter smak"],["Senap","till servering"]],steps:["Blötlägg ärterna natten över. Häll av vattnet.","Koka ärterna i 1,5 l vatten. Skumma noggrant i början.","Tillsätt fläsk, hackad lök, timjan och lagerblad. Sjud under lock 1,5–2 h.","Ta upp fläsket, skär i bitar. Ta bort örter. Smaka av med salt och peppar.","Servera soppa med fläskbitar och senap."]},
+  "Gravadlax med hovmästarsås":{servings:6,ingredients:[["Laxfilé (med skinn)","600 g"],["Salt","3 msk"],["Socker","2 msk"],["Grovmalen vitpeppar","1 tsk"],["Dill","1 kruka"],["— Hovmästarsås —",""],["Dijonsenap","3 msk"],["Socker","1 msk"],["Ättika","1 msk"],["Rapsolja","1 dl"],["Dill","½ kruka"],["Salt","efter smak"],["Knäckebröd","till servering"]],steps:["Blanda salt, socker och peppar. Strö hälften på botten av en form.","Lägg laxen med skinnet nedåt, täck med dillkvistar och resten av saltblandningen.","Täck med plast och en tyngd. Kyl 36–48 h, vänd varannan dag.","Hovmästarsås: vispa senap, socker och ättika. Tillsätt oljan droppvis tills emulgerad. Rör ner dill.","Skiva laxen tunt snett. Servera med sås och knäckebröd."]},
+  "Biff Lindström":{servings:4,ingredients:[["Nötfärs","600 g"],["Inlagd rödbeta","100 g"],["Inlagd gurka (kapris)","2 msk"],["Gul lök","1 st"],["Ägg","1 st"],["Grädde","1 dl"],["Salt & peppar","efter smak"],["Smör","30 g"],["— Gräddsås —",""],["Smör","20 g"],["Mjöl","1 msk"],["Grädde","3 dl"],["Soja","1 msk"]],steps:["Finhacka rödbeta, kapris och lök. Blanda med köttfärs, ägg och grädde. Salta.","Forma till 8 burgare. Stek i smör 3–4 min per sida.","Gräddsås: smält smör, rör ner mjöl. Vispa in grädde och soja. Koka till krämig.","Servera burgarna med potatis och gräddsås.","Garnera med inlagd rödbeta."]},
+  "Fiskbullar i dillsås":{servings:4,ingredients:[["Torsk eller sej","600 g"],["Ägg","2 st"],["Potatismjöl","2 msk"],["Grädde","1 dl"],["Gul lök","½ st"],["Salt & vitpeppar","efter smak"],["— Dillsås —",""],["Smör","30 g"],["Vetemjöl","2 msk"],["Fiskbuljong","3 dl"],["Grädde","2 dl"],["Dill","1 kruka"],["Citron","½ st"]],steps:["Mixa fisken slät med ägg, potatismjöl, grädde och riven lök. Salta.","Koka upp saltat vatten. Forma fiskbullar med två skedar, koka 5 min.","Dillsås: smält smör, rör ner mjöl. Vispa in buljong och grädde. Koka tjock.","Rör ner hackad dill och citronsaft. Smaka av.","Servera fiskbullar i sås med kokt potatis."]},
+  "Raggmunk med fläsk och lingon":{servings:4,ingredients:[["Mjölig potatis","800 g"],["Ägg","2 st"],["Mjöl","3 msk"],["Mjölk","1 dl"],["Salt","1 tsk"],["Rökt sidfläsk (skivor)","400 g"],["Smör","till stekning"],["Lingonsylt","till servering"]],steps:["Riv potatisen grovt, pressa ur vatten. Blanda med ägg, mjöl, mjölk och salt.","Stek fläsket krispigt, håll varmt.","Hetta upp smör i panna. Lägg i potatissmet, platta till ca 1 cm.","Stek på medel-hög värme 4–5 min per sida tills gyllenbrun och genomvarm.","Servera direkt med fläsk och lingonsylt."]},
+  "Schnitzel med potatissallad":{servings:4,ingredients:[["Kalvschnitzel","4 st (ca 150 g)"],["Ägg","2 st"],["Ströbröd","150 g"],["Mjöl","3 msk"],["Smör & olja","till stekning"],["Citron","till servering"],["— Potatissallad —",""],["Kokt potatis","600 g"],["Vit vinäger","2 msk"],["Rapsolja","2 msk"],["Gul lök","1 st"],["Kycklingbuljong","0,5 dl"],["Salt, peppar, persilja","efter smak"]],steps:["Plattas schnitzlarna med kötthammare. Panera i mjöl, uppvispat ägg och ströbröd.","Stek i rikligt smör och olja 2–3 min per sida tills gyllenbrun. Salta direkt.","Potatissallad: skiva kokt potatis. Finhacka lök, blanda med varm buljong, vinäger och olja. Blanda med potatis och hackad persilja.","Servera schnitzlarna med citronsklyftor och varm potatissallad."]},
+  "Linsgryta med korv":{servings:4,ingredients:[["Gröna eller bruna linser","300 g"],["Rökt korv","300 g"],["Gul lök","2 st"],["Morot","2 st"],["Selleri","2 stjälkar"],["Vitlök","3 klyftor"],["Krossade tomater","200 g"],["Rosmarin","2 kvistar"],["Kycklingbuljongtärning","1 st"],["Rödvinsvinäger","1 msk"],["Olivolja","2 msk"],["Salt & peppar","efter smak"]],steps:["Skiva korven, bryn i gryta. Ta ur. Fräs hackad lök, morot och selleri i korvolja, 7 min.","Tillsätt vitlök och rosmarin, fräs 1 min. Rör ner tomater.","Tillsätt sköljda linser, buljong och 6 dl vatten. Koka upp.","Sjud 25 min. Lägg tillbaka korven, sjud 5 min.","Smaka av med vinäger, salt och peppar."]},
+  "Flammkuchen":{servings:4,ingredients:[["Vetemjöl","250 g"],["Vatten","150 ml"],["Rapsolja","2 msk"],["Salt","½ tsk"],["Crème fraîche","200 g"],["Rökt bacon (strimlat)","150 g"],["Rödlök","2 st"],["Muskotnöt","¼ tsk"],["Vitpeppar","½ tsk"]],steps:["Blanda mjöl, vatten, olja och salt till en slät deg. Vila 20 min.","Skiva löken mycket tunt. Blanda crème fraîche med muskotnöt och peppar.","Kavla ut degen tunn (ca 2 mm) på bakplåtspapper.","Bred crème fraîche, lägg bacon och lök jämnt fördelat.","Grädda på högsta ugnstemperatur (250°C) med baksten eller het plåt, 8–10 min."]},
+  "Shepherd's pie":{servings:4,ingredients:[["Lammfärs","600 g"],["Gul lök","2 st"],["Morot","2 st"],["Selleri","2 stjälkar"],["Vitlök","3 klyftor"],["Tomatpuré","2 msk"],["Worcestershire-sås","1 msk"],["Rödvin","1 dl"],["Kycklingbuljongtärning","1 st"],["Frysta ärtor","150 g"],["Timjan","4 kvistar"],["— Moslock —",""],["Mjölig potatis","800 g"],["Smör","50 g"],["Mjölk","1 dl"],["Riven cheddar","80 g"]],steps:["Bryn lammfärsen. Tillsätt hackad lök, morot, selleri och vitlök, fräs 5 min.","Rör ner tomatpuré, worcestershire, vin och buljong. Sjud 20 min. Tillsätt ärtor och timjan.","Koka och mosa potatisen med smör och mjölk. Salta.","Häll fyllningen i ugnsform. Lägg moslock, strö cheddar.","Grädda 200°C, 25 min tills gyllenbrun."]},
+  "Fish and chips":{servings:4,ingredients:[["Torskfilé","600 g"],["Öl (lager)","2 dl"],["Vetemjöl","150 g"],["Bakpulver","1 tsk"],["Salt","1 tsk"],["Rapsolja","till fritering"],["Fast potatis","800 g"],["Ärtor (mosade)","till servering"],["Tartarsås","till servering"]],steps:["Skär potatisen till chips (ca 1 cm tjocka). Fritera i 150°C, 10 min. Avrina och kyl.","Vispa mjöl, bakpulver, salt och öl till slät smet. Kyl 20 min.","Fritera chips igen i 180°C tills gyllenbrun, ca 5 min. Salta.","Doppa torsken i smet, fritera 4–5 min per sida tills knaprig.","Servera med chips, mushy peas och tartarsås."]},
+  "Irish stew":{servings:4,ingredients:[["Lammkött (bög)","700 g"],["Potatis","500 g"],["Morot","3 st"],["Pärllök","200 g"],["Purjolök","1 st"],["Vitlök","3 klyftor"],["Timjan","4 kvistar"],["Lagerblad","2 st"],["Kycklingbuljongtärning","1 st"],["Smör","30 g"],["Salt & peppar","efter smak"],["Persilja","till servering"]],steps:["Bryn lammköttet i smör. Ta ur. Bryn pärllök.","Lägg kött, morötter, potatis, purjolök och vitlök i gryta.","Häll i buljong och vatten (täck knappt). Tillsätt timjan och lagerblad.","Koka under lock 1,5 h tills köttet är mört.","Smaka av, toppa med persilja. Servera med bröd."]},
+  "BBQ pulled pork med coleslaw":{servings:6,ingredients:[["Fläskkarré","1 kg"],["Rökt paprikapulver","2 msk"],["Spiskummin","1 tsk"],["Vitlökspulver","1 tsk"],["Farinsocker","1 msk"],["Salt & peppar","1 tsk vardera"],["BBQ-sås","2 dl"],["Brioche-bröd","4–6 st"],["— Coleslaw —",""],["Vitkål","300 g"],["Morot","2 st"],["Majonnäs","4 msk"],["Äppelcidervinäger","2 msk"],["Socker","1 tsk"]],steps:["Blanda kryddor, gnid in i fläsket. Rosta i ugn 120°C i 5–6 h tills köttet faller sär.","Dra isär köttet med två gafflar. Blanda med BBQ-sås.","Strimla kål och riv morot. Blanda med majonnäs, vinäger och socker. Kyl 30 min.","Rosta brioche-bröden. Fyll med pulled pork och coleslaw."]},
+  "Clam chowder":{servings:4,ingredients:[["Musslor eller clams (burk)","2 x 400 g"],["Bacon","100 g"],["Potatis","400 g"],["Gul lök","2 st"],["Selleri","2 stjälkar"],["Vitlök","2 klyftor"],["Mjöl","3 msk"],["Mjölk","4 dl"],["Grädde","2 dl"],["Timjan","4 kvistar"],["Smör","30 g"],["Salt & vitpeppar","efter smak"]],steps:["Strimla bacon, stek krispigt. Ta ur. Fräs lök och selleri i baconfett och smör 5 min.","Tillsätt vitlök och mjöl, rör om. Häll i musslajuice och mjölk gradvis.","Koka under omrörning tills tjocknat. Tillsätt potatistärningar och timjan.","Sjud 15 min tills potatisen är mjuk. Rör ner grädde och musslor, värm försiktigt.","Toppa med bacon och servera med surdegsbröd."]},
+  "Mac and cheese":{servings:4,ingredients:[["Macaroni","400 g"],["Cheddar, riven","200 g"],["Gruyère, riven","100 g"],["Smör","40 g"],["Vetemjöl","3 msk"],["Mjölk","6 dl"],["Dijonsenap","1 tsk"],["Cayennepeppar","¼ tsk"],["Muskotnöt","¼ tsk"],["Ströbröd","3 msk"],["Salt","efter smak"]],steps:["Koka macaroni al dente, avrina.","Smält smör, rör ner mjöl. Vispa in mjölk gradvis, koka tjock ca 5 min.","Dra av värmen, rör ner ostar, senap, cayenne och muskot. Salta.","Blanda med pasta, häll i ugnsform. Strö ströbröd.","Grädda 200°C, 20 min tills bubblig och gyllenbrun."]},
+  "Borscht":{servings:4,ingredients:[["Rödbeta","4 st (ca 500 g)"],["Vitkål (strimlad)","300 g"],["Potatis","3 st"],["Morot","2 st"],["Gul lök","2 st"],["Vitlök","3 klyftor"],["Krossade tomater","200 g"],["Rödvinsvinäger","2 msk"],["Socker","1 tsk"],["Grönsaksbuljongtärning","2 st"],["Rapsolja","2 msk"],["Gräddfil","till servering"],["Dill","till servering"]],steps:["Riv rödbeta och morot grovt. Tärna potatis. Skiva lök.","Fräs lök i olja tills mjuk. Tillsätt rödbeta och morot, fräs 5 min.","Häll i 1,5 l buljong. Tillsätt kål och potatis. Koka 15 min.","Rör ner tomater, vitlök, vinäger och socker. Sjud 10 min.","Smaka av med salt. Servera med gräddfil och dill."]},
+  "Pierogi med potatis och ost":{servings:4,ingredients:[["Vetemjöl","300 g"],["Ägg","1 st"],["Vatten (ljummet)","100 ml"],["Salt","½ tsk"],["— Fyllning —",""],["Kokt potatis","400 g"],["Smörost eller cheddar","100 g"],["Gul lök (karamelliserad)","1 st"],["Smör","40 g"],["Salt & peppar","efter smak"]],steps:["Blanda mjöl, ägg, vatten och salt till smidig deg. Vila 30 min.","Mosa potatis med riven ost och karamelliserad lök. Salta.","Kavla ut degen tunt, stans ut cirklar (10 cm). Lägg fyllning, vik och knip kant.","Koka i saltat vatten 4–5 min tills de flyter. Ta upp.","Stek i smör tills gyllenbrun. Servera med gräddfil och karamelliserad lök."]},
+  "Goulash":{servings:4,ingredients:[["Nötkött (högrev)","700 g"],["Gul lök","3 st"],["Röd paprika","2 st"],["Paprikapulver, söt","3 msk"],["Paprikapulver, rökt","1 msk"],["Krossade tomater","200 g"],["Vitlök","3 klyftor"],["Spiskummin","1 tsk"],["Klarnat smör (ghee) eller olja","2 msk"],["Äggpasta eller nudlar","till servering"],["Gräddfil","till servering"],["Salt","efter smak"]],steps:["Tärna köttet, bryn i omgångar. Ta ur. Fräs hackad lök 10 min tills gyllenbrun.","Dra av värmen, tillsätt paprikapulver (viktigt: bränns lätt). Rör om.","Häll i lite vatten, rör botten. Tillsätt kött, vitlök, tomater och spiskummin.","Sjud under lock 1,5–2 h tills köttet är mört. Späd med vatten vid behov.","Servera med pasta och gräddfil."]},
+  "Blini med lax och crème fraîche":{servings:4,ingredients:[["Vetemjöl","150 g"],["Bovete (valfritt)","50 g"],["Mjölk","3 dl"],["Ägg","2 st"],["Jäst (färsk)","15 g"],["Smör","30 g + till stekning"],["Salt","½ tsk"],["Socker","1 tsk"],["Gravlax","200 g"],["Crème fraîche","200 g"],["Rödlök","1 st"],["Dill","½ kruka"]],steps:["Lös jästen i ljummen mjölk med socker. Blanda i mjöl, ägg och smält smör. Salta. Jäs 1 h.","Stek runda blini (ca 8 cm) i smör 2 min per sida.","Skiva rödlöken tunt.","Lägg crème fraîche på blini, toppa med gravlax, rödlök och dill."]},
+
+
+const tagClass={grön:"tag-grön",fisk:"tag-fisk",kött:"tag-kött",matlåda:"tag-matlåda",potatis:"tag-potatis",baljväxter:"tag-baljväxter"};
+
+// ─── WEEK UTILS ──────────────────────────────────────────────────────────────
+function getISOWeek(d){
+  const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const day=date.getUTCDay()||7;
+  date.setUTCDate(date.getUTCDate()+4-day);
+  const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  return{week:Math.ceil((((date-yearStart)/86400000)+1)/7),year:date.getUTCFullYear()};
+}
+function getISOWeeksInYear(year){const d=new Date(Date.UTC(year,11,28));return getISOWeek(d).week;}
+function getWeekStart(week,year){
+  const jan4=new Date(Date.UTC(year,0,4));
+  const day=jan4.getUTCDay()||7;
+  const ws=new Date(jan4);
+  ws.setUTCDate(jan4.getUTCDate()-day+1+(week-1)*7);
+  return ws;
+}
+function formatWeekLabel(week,year){
+  const start=getWeekStart(week,year);
+  const end=new Date(start);end.setUTCDate(start.getUTCDate()+6);
+  const months=['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'];
+  const todayWY=getISOWeek(new Date());
+  let label=`v.${week} · ${start.getUTCDate()} ${months[start.getUTCMonth()]} – ${end.getUTCDate()} ${months[end.getUTCMonth()]}`;
+  if(week===todayWY.week&&year===todayWY.year)label+=' (denna vecka)';
+  return label;
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const today=new Date();
+const todayWY=getISOWeek(today);
+let currentWeek=todayWY.week;
+let currentYear=todayWY.year;
+let mealsCache={};
+let ratingsCache={};
+// Per-card portions state: key = "week_year_typ_pos" => portions
+let portionsState={};
+
+// Card portions (default 4)
+function getPortions(week,year,typ,pos){
+  return portionsState[`${week}_${year}_${typ}_${pos}`]||4;
+}
+function setPortions(week,year,typ,pos,val){
+  portionsState[`${week}_${year}_${typ}_${pos}`]=val;
+}
+
+// ─── LOAD DATA ───────────────────────────────────────────────────────────────
+async function loadMeals(){
+  try{const r=await fetch(API+'?action=getMeals');mealsCache=await r.json();}catch(e){console.warn('meals',e);}
+}
+async function loadRatings(){
+  try{const r=await fetch(API+'?action=getRatings');ratingsCache=await r.json();}catch(e){console.warn('ratings',e);}
+}
+async function init(){
+  await Promise.all([loadMeals(),loadRatings()]);
+  updateBadge();
+  render();
+}
+
+// ─── WEEK SCHEDULE ───────────────────────────────────────────────────────────
+// Base week = current ISO week (shifted forward 2 from previous implementation)
+function getMealsForWeek(week,year){
+  const key=`${week}_${year}`;
+  const saved=mealsCache[key];
+  // Base: current week = schedule index 0
+  const baseWY=getISOWeek(new Date());
+  const baseDate=getWeekStart(baseWY.week,baseWY.year);
+  const thisDate=getWeekStart(week,year);
+  const diffWeeks=Math.round((thisDate-baseDate)/(7*86400000));
+  const schedules=[
+    {big:[0,1],small:[2,3]},
+    {big:[4,5],small:[6,7]},
+    {big:[8,9],small:[10,11]},
+    {big:[12,13],small:[14,15]},
+    {big:[16,17],small:[18,0]},
+  ];
+  const s=schedules[((diffWeeks%5)+5)%5];
+  return{
+    big:[
+      saved&&saved.big&&saved.big[0]?mealPool.find(m=>m.n===saved.big[0])||mealPool[s.big[0]]:mealPool[s.big[0]],
+      saved&&saved.big&&saved.big[1]?mealPool.find(m=>m.n===saved.big[1])||mealPool[s.big[1]]:mealPool[s.big[1]],
+    ],
+    small:[
+      saved&&saved.small&&saved.small[0]?mealPool.find(m=>m.n===saved.small[0])||mealPool[s.small[0]]:mealPool[s.small[0]],
+      saved&&saved.small&&saved.small[1]?mealPool.find(m=>m.n===saved.small[1])||mealPool[s.small[1]]:mealPool[s.small[1]],
+    ]
+  };
+}
+
+// ─── RENDER MATSEDEL ─────────────────────────────────────────────────────────
+function render(){
+  document.getElementById('week-label').textContent=formatWeekLabel(currentWeek,currentYear);
+  const todayWY2=getISOWeek(new Date());
+  const maxW=getISOWeeksInYear(currentYear);
+  const nw=currentWeek===maxW?1:currentWeek+1;
+  const ny=currentWeek===maxW?currentYear+1:currentYear;
+  document.getElementById('btn-current').classList.toggle('active',currentWeek===todayWY2.week&&currentYear===todayWY2.year);
+  document.getElementById('btn-next').classList.toggle('active',currentWeek===nw&&currentYear===ny&&!(currentWeek===todayWY2.week&&currentYear===todayWY2.year));
+  const meals=getMealsForWeek(currentWeek,currentYear);
+  const main=document.getElementById('page-matsedel');
+  main.innerHTML=`
+    <div class="section-block">
+      <p class="section-heading">Stora portioner — matlådor</p>
+      <div class="meal-grid">
+        ${mealCard(meals.big[0],'big',0)}
+        ${mealCard(meals.big[1],'big',1)}
+      </div>
+    </div>
+    <div class="section-block">
+      <p class="section-heading">Kvällsrätter</p>
+      <div class="meal-grid">
+        ${mealCard(meals.small[0],'small',0)}
+        ${mealCard(meals.small[1],'small',1)}
+      </div>
+    </div>`;
+}
+
+function avgRating(name){
+  const rs=ratingsCache[name];
+  if(!rs||!rs.length)return null;
+  return(rs.reduce((a,b)=>a+Number(b.betyg),0)/rs.length).toFixed(1);
+}
+
+function mealCard(m,typ,pos){
+  const avg=avgRating(m.n);
+  const portions=getPortions(currentWeek,currentYear,typ,pos);
+  const safeN=m.n.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  return`<div class="meal-card${typ==='big'?' big':''}" onclick="openModal('${safeN}','${m.i}','${typ==='big'?'Stor sats':'Kvällsrätt'}')">
+    <div class="card-top">
+      <div style="flex:1">
+        <div class="card-name">${m.n}</div>
+        <div class="card-portions" onclick="event.stopPropagation()">
+          <span class="portions-label">Portioner:</span>
+          <div class="portions-ctrl">
+            <button class="portions-btn" onclick="changePortions(event,'${safeN}','${typ}',${pos},-2)">−</button>
+            <span class="portions-num" id="pn_${typ}_${pos}">${portions}</span>
+            <button class="portions-btn" onclick="changePortions(event,'${safeN}','${typ}',${pos},2)">+</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="card-icon">${m.i}</span>
+        ${typ==='big'?'<span class="badge-mat">matlådor</span>':''}
+      </div>
+    </div>
+    <p class="card-desc">${m.d}</p>
+    <div class="tags">${m.t.map(t=>`<span class="tag ${tagClass[t]||''}">${t}</span>`).join('')}</div>
+    ${avg?`<div class="card-rating">★ ${avg} / 10</div>`:''}
+    <p class="card-hint">↗ Visa recept & betygsätt</p>
+    <button class="swap-btn" onclick="event.stopPropagation();openSwap('${safeN}','${typ}',${pos})">⇄ Byt</button>
+  </div>`;
+}
+
+function changePortions(e,name,typ,pos,delta){
+  e.stopPropagation();
+  let cur=getPortions(currentWeek,currentYear,typ,pos);
+  cur=Math.max(2,cur+delta);
+  setPortions(currentWeek,currentYear,typ,pos,cur);
+  const el=document.getElementById(`pn_${typ}_${pos}`);
+  if(el)el.textContent=cur;
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+document.getElementById('prev-week').onclick=()=>{if(currentWeek===1){currentYear--;currentWeek=getISOWeeksInYear(currentYear);}else currentWeek--;render();};
+document.getElementById('next-week').onclick=()=>{if(currentWeek===getISOWeeksInYear(currentYear)){currentWeek=1;currentYear++;}else currentWeek++;render();};
+document.getElementById('btn-current').onclick=()=>{const w=getISOWeek(new Date());currentWeek=w.week;currentYear=w.year;render();};
+document.getElementById('btn-next').onclick=()=>{const w=getISOWeek(new Date());const max=getISOWeeksInYear(w.year);currentWeek=w.week===max?1:w.week+1;currentYear=w.week===max?w.year+1:w.year;render();};
+
+// ─── MODAL ───────────────────────────────────────────────────────────────────
+let baseServings=4,currentServings=4,currentRecipe=null,currentModalName='';
+
+function switchTab(tab){
+  document.querySelectorAll('.modal-tab').forEach((t,i)=>{t.classList.toggle('active',(i===0&&tab==='recept')||(i===1&&tab==='betyg'));});
+  document.getElementById('pane-recept').classList.toggle('active',tab==='recept');
+  document.getElementById('pane-betyg').classList.toggle('active',tab==='betyg');
+}
+
+function openModal(name,icon,meta){
+  const r=recipes[name];
+  currentModalName=name;currentRecipe=r||null;
+  document.getElementById('m-icon').textContent=icon;
+  document.getElementById('m-title').textContent=name;
+  document.getElementById('m-meta').textContent=meta;
+  if(r){baseServings=r.servings;currentServings=r.servings;document.getElementById('srv-count').textContent=currentServings;renderIngredients();renderSteps(r.steps);}
+  else{document.getElementById('m-ingredients').innerHTML='<li class="ing-row"><span class="ing-name-text" style="color:var(--muted);font-style:italic">Recept läggs till snart</span></li>';document.getElementById('m-steps').innerHTML='';}
+  renderRatings(name);selectedRating=0;
+  document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('rating-status').textContent='';
+  switchTab('recept');
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function renderIngredients(){
+  if(!currentRecipe)return;
+  const addedSet=new Set(shopItems.map(i=>i.text.toLowerCase()));
+  document.getElementById('m-ingredients').innerHTML=currentRecipe.ingredients.map(([name,qty])=>{
+    if(qty==='')return`<li class="ing-row section-header"><span>${name}</span></li>`;
+    const scaledQty=scaleQty(qty,baseServings,currentServings);
+    const isAdded=addedSet.has(name.toLowerCase());
+    const chkClass='ing-check'+(isAdded?' checked':'');
+    const chkMark=isAdded?'✓':'';
+    return`<li class="ing-row" onclick="toggleIngCheck(this,'${name.replace(/'/g,"\\'")}','${scaledQty.replace(/'/g,"\\'")}')">
+      <div class="ing-left">
+        <div class="${chkClass}">${chkMark}</div>
+        <span class="ing-name-text">${name}</span>
+      </div>
+      <span class="ing-qty">${scaledQty}</span>
+    </li>`;
+  }).join('');
+}
+
+function toggleIngCheck(row,name,qty){
+  const check=row.querySelector('.ing-check');
+  const already=check.classList.contains('checked');
+  if(already){
+    check.classList.remove('checked');check.textContent='';
+    shopItems=shopItems.filter(i=>i.text.toLowerCase()!==name.toLowerCase());
+    saveShop();
+  }else{
+    check.classList.add('checked');check.textContent='✓';
+    addToShop(name,qty);
+  }
+}
+
+function scaleQty(qty,base,target){
+  if(base===target)return qty;
+  const f=target/base;
+  return qty.replace(/(\d+[,.]?\d*)/g,m=>{
+    const n=parseFloat(m.replace(',','.'))*f;
+    const r=Math.round(n*4)/4;
+    return r===Math.floor(r)?r.toString():r.toFixed(1).replace('.',',');
+  });
+}
+function renderSteps(steps){document.getElementById('m-steps').innerHTML=steps.map((s,i)=>`<li><span class="step-num">${i+1}</span><span>${s}</span></li>`).join('');}
+function closeModal(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('modal-close').onclick=closeModal;
+document.getElementById('overlay').onclick=e=>{if(e.target===document.getElementById('overlay'))closeModal();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeSwap();}});
+document.getElementById('srv-up').onclick=()=>{currentServings+=2;document.getElementById('srv-count').textContent=currentServings;renderIngredients();};
+document.getElementById('srv-down').onclick=()=>{if(currentServings>2){currentServings-=2;document.getElementById('srv-count').textContent=currentServings;renderIngredients();}};
+
+// ─── RATING ──────────────────────────────────────────────────────────────────
+let selectedRating=0;
+const starsRow=document.getElementById('stars-row');
+for(let i=1;i<=10;i++){const b=document.createElement('button');b.className='star-btn';b.textContent=i;b.onclick=()=>{selectedRating=i;document.querySelectorAll('.star-btn').forEach((btn,idx)=>btn.classList.toggle('sel',idx<i));};starsRow.appendChild(b);}
+
+function renderRatings(name){
+  const rs=ratingsCache[name];
+  const el=document.getElementById('ratings-list');
+  if(!rs||!rs.length){el.innerHTML='<p class="no-ratings">Inga betyg ännu</p>';return;}
+  el.innerHTML='<div class="ratings-list">'+rs.map(r=>`<div class="rating-entry"><div><div style="font-weight:500">${r.namn}</div><div class="rating-meta">${r.tidpunkt}</div></div><div class="rating-score">${r.betyg}/10</div></div>`).join('')+'</div>';
+}
+async function submitRating(){
+  const namn=document.getElementById('rating-name').value.trim();
+  if(!namn){document.getElementById('rating-status').textContent='Ange ditt namn.';return;}
+  if(!selectedRating){document.getElementById('rating-status').textContent='Välj ett betyg 1–10.';return;}
+  const btn=document.getElementById('submit-rating');btn.disabled=true;
+  document.getElementById('rating-status').textContent='Sparar...';
+  try{
+    await fetch(API,{method:'POST',body:JSON.stringify({action:'saveRating',ratt:currentModalName,namn,betyg:selectedRating})});
+    if(!ratingsCache[currentModalName])ratingsCache[currentModalName]=[];
+    ratingsCache[currentModalName].push({namn,betyg:selectedRating,tidpunkt:new Date().toLocaleString('sv-SE')});
+    renderRatings(currentModalName);
+    document.getElementById('rating-status').textContent='✓ Betyg sparat!';
+    selectedRating=0;document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('sel'));
+    render();
+  }catch(e){document.getElementById('rating-status').textContent='Kunde inte spara, försök igen.';}
+  btn.disabled=false;
+}
+
+// ─── SWAP ────────────────────────────────────────────────────────────────────
+let swapTarget={name:'',typ:'',pos:0};
+function openSwap(name,typ,pos){swapTarget={name,typ,pos};document.getElementById('swap-current-name').textContent=name;document.getElementById('swap-search').value='';document.getElementById('ai-loading').style.display='none';filterSwap();document.getElementById('swap-overlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeSwap(){document.getElementById('swap-overlay').classList.remove('open');if(!document.getElementById('overlay').classList.contains('open'))document.body.style.overflow='';}
+document.getElementById('swap-overlay').onclick=e=>{if(e.target===document.getElementById('swap-overlay'))closeSwap();};
+function filterSwap(){
+  const q=document.getElementById('swap-search').value.toLowerCase().trim();
+  const current=swapTarget.name;
+  let options=mealPool.filter(m=>m.n!==current);
+  if(q){options=options.filter(m=>{const r=recipes[m.n];const ingText=r?r.ingredients.map(i=>i[0]).join(' ').toLowerCase():'';return m.n.toLowerCase().includes(q)||m.d.toLowerCase().includes(q)||ingText.includes(q);});}
+  const el=document.getElementById('swap-options');
+  if(!options.length){el.innerHTML='<p style="font-size:13px;color:var(--muted);font-style:italic">Inga träffar</p>';return;}
+  el.innerHTML=options.slice(0,7).map(m=>`<button class="swap-option" onclick="applySwap('${m.n.replace(/'/g,"\\'")}')"><div class="swap-option-name">${m.i} ${m.n}</div><div class="swap-option-desc">${m.d}</div></button>`).join('');
+}
+function randomSwap(){const options=mealPool.filter(m=>m.n!==swapTarget.name);applySwap(options[Math.floor(Math.random()*options.length)].n);}
+async function applySwap(newName){
+  const{typ,pos}=swapTarget;const key=`${currentWeek}_${currentYear}`;
+  if(!mealsCache[key])mealsCache[key]={big:[null,null],small:[null,null]};
+  mealsCache[key][typ][pos]=newName;
+  try{await fetch(API,{method:'POST',body:JSON.stringify({action:'saveMeal',vecka:currentWeek,ar:currentYear,typ,position:pos,ratt:newName})});}catch(e){console.warn('save meal',e);}
+  closeSwap();render();
+}
+async function aiSwap(){
+  const loading=document.getElementById('ai-loading');loading.style.display='block';loading.textContent='Genererar recept med AI...';
+  const currentM=mealPool.find(m=>m.n===swapTarget.name);const tags=currentM?currentM.t.join(', '):'';
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Du är en kock som skapar svenska matrecept. Svara ENBART med JSON, inget annat. Ingen markdown, inga backticks.',messages:[{role:'user',content:`Skapa ett nytt matrecept som liknar kategorin: ${tags}. Recept som ska bytas ut: ${swapTarget.name}. Svara med JSON: {"name":"Receptnamnet","desc":"Kort beskrivning max 15 ord","icon":"🍽️","ingredients":[["ingrediens","mängd"]],"steps":["steg 1","steg 2"]}`}]})});
+    const data=await resp.json();
+    const recipe=JSON.parse(data.content[0].text.trim());
+    const newMeal={n:recipe.name,d:recipe.desc,t:currentM?currentM.t:['grön'],i:recipe.icon||'🍽️'};
+    mealPool.push(newMeal);recipes[recipe.name]={servings:4,ingredients:recipe.ingredients,steps:recipe.steps};
+    loading.style.display='none';applySwap(recipe.name);
+  }catch(e){loading.textContent='Kunde inte generera recept just nu.';console.error(e);}
+}
+
+// ─── ADD RECIPE ──────────────────────────────────────────────────────────────
+function openAddRecipe(){
+  document.getElementById('add-recipe-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  // Reset form
+  ['ar-name','ar-desc','ar-icon'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ar-servings').value=4;
+  document.getElementById('ar-cuisine').value='';
+  document.getElementById('ar-status').textContent='';
+  document.querySelectorAll('.tag-toggle').forEach(b=>b.classList.remove('on'));
+  document.getElementById('ar-ing-list').innerHTML='';
+  document.getElementById('ar-step-list').innerHTML='';
+  addArIng(); addArIng(); addArIng(); // start with 3 ingredient rows
+  addArStep(); addArStep(); // start with 2 step rows
+}
+function closeAddRecipe(){
+  document.getElementById('add-recipe-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function toggleArTag(btn){btn.classList.toggle('on');}
+function addArIng(){
+  const list=document.getElementById('ar-ing-list');
+  const div=document.createElement('div');
+  div.className='ing-entry';
+  div.innerHTML=`<input class="ar-input ing-name-f" placeholder="Ingrediens" type="text">
+    <input class="ar-input ing-qty-f" placeholder="Mängd" type="text">
+    <button class="ing-del-btn" onclick="this.parentElement.remove()">×</button>`;
+  list.appendChild(div);
+  div.querySelector('input').focus();
+}
+function addArStep(){
+  const list=document.getElementById('ar-step-list');
+  const idx=list.children.length+1;
+  const div=document.createElement('div');
+  div.className='ing-entry';
+  div.style.alignItems='flex-start';
+  div.innerHTML=`<span style="min-width:19px;height:19px;border-radius:50%;background:var(--ink);color:var(--cream);font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;margin-top:6px;flex-shrink:0">${idx}</span>
+    <textarea class="ar-input" placeholder="Beskriv steget..." rows="2" style="resize:vertical;flex:1"></textarea>
+    <button class="ing-del-btn" style="margin-top:6px" onclick="this.parentElement.remove();reindexSteps()">×</button>`;
+  list.appendChild(div);
+}
+function reindexSteps(){
+  document.querySelectorAll('#ar-step-list .ing-entry span').forEach((s,i)=>s.textContent=i+1);
+}
+function saveArRecipe(){
+  const name=document.getElementById('ar-name').value.trim();
+  const desc=document.getElementById('ar-desc').value.trim();
+  const icon=document.getElementById('ar-icon').value.trim()||'🍽️';
+  const servings=parseInt(document.getElementById('ar-servings').value)||4;
+  const cuisine=document.getElementById('ar-cuisine').value;
+  const tags=[...document.querySelectorAll('.tag-toggle.on')].map(b=>b.dataset.tag);
+  const status=document.getElementById('ar-status');
+
+  if(!name){status.style.color='var(--red)';status.textContent='Ange ett receptnamn.';return;}
+  if(!desc){status.style.color='var(--red)';status.textContent='Lägg till en kort beskrivning.';return;}
+
+  const ingRows=[...document.querySelectorAll('#ar-ing-list .ing-entry')];
+  const ingredients=ingRows
+    .map(r=>[r.querySelectorAll('input')[0].value.trim(), r.querySelectorAll('input')[1].value.trim()])
+    .filter(([n])=>n);
+
+  const stepRows=[...document.querySelectorAll('#ar-step-list .ing-entry textarea')];
+  const steps=stepRows.map(t=>t.value.trim()).filter(Boolean);
+
+  if(!ingredients.length){status.style.color='var(--red)';status.textContent='Lägg till minst en ingrediens.';return;}
+  if(!steps.length){status.style.color='var(--red)';status.textContent='Lägg till minst ett steg.';return;}
+
+  // Add to mealPool and recipes
+  mealPool.push({n:name,d:desc,t:tags,k:cuisine,i:icon});
+  recipes[name]={servings,ingredients,steps};
+
+  status.style.color='var(--green)';
+  status.textContent=`✓ "${name}" sparat!`;
+  setTimeout(closeAddRecipe, 1200);
+}
+document.getElementById('add-recipe-overlay').addEventListener('click',function(e){if(e.target===this)closeAddRecipe();});
+
+
+init();
+</script>
+</body>
+</html>
